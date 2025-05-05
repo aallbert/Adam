@@ -1,7 +1,7 @@
 use std::io;
 
 use crate::{
-    interface::{Bitboard, Constrains, Turn},
+    interface::Turn,
     logics::move_validation,
 };
 
@@ -26,8 +26,7 @@ pub fn testing() {
     let mut turn: Turn = Turn::White;
     // let mut constrains: Constrains = (true, true);
     let mut fen_string = String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-    let mut w_pawnboard: Bitboard = 0x000000000000FF00;
-    let mut b_pawnboard: Bitboard = 0x00FF000000000000;
+    fen_string = String::from("8/5P2/6P1/1Q1RN3/1p1B4/8/2K5/8");
 
     loop {
         let board = parse_fen_to_board(&fen_string);

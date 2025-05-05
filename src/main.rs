@@ -3,6 +3,9 @@ use std::io;
 mod gui;
 mod interface;
 mod logics;
+mod core {
+    pub mod movegen;
+}
 
 fn main() {
     println!("Setup");
