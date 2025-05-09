@@ -1,11 +1,10 @@
 use std::io;
 
+mod core;
 mod gui;
 mod interface;
 mod logics;
-mod core {
-    pub mod movegen;
-}
+mod models;
 
 fn main() {
     println!("Setup");

@@ -1,0 +1,147 @@
+use crate::interface::{file_to_i8, i8_to_file, i8_to_rank, rank_to_i8};
+
+/// struct representing a Square as a u16 with a value between 0..=63
+pub struct Square(u16);
+impl Square {
+    pub fn new(u: u16) -> Self {
+        // if !(0..=63).contains(&u) {
+        //     panic!("Indexing out of range!");
+        // }
+        Self(u)
+    }
+    pub fn get_rank_as_index(&self) -> u16 {
+        self.0 >> 3
+    }
+    pub fn get_file_as_index(&self) -> u16 {
+        // A & 7 = A mod 8
+        self.0 & 0b111
+    }
+    pub fn to_u16(self) -> u16 {
+        self.0
+    }
+}
+
+#[derive(Debug)]
+/// A Chessmove in coordinate Notation decoded in a 16 Bit unsigned Integer.
+///
+/// - The most significant four Bit are used for encoding specalties, e.g. Pawnpromotion, ...
+/// - The following six Bit represent the current square as an index 0-63
+/// - The least significant six Bit represent the destinated square as an index 0-63
+///
+/// ### Encoding of the four MSB
+/// | Used Bit | Description | Example |
+/// |:-----------|:-----------|:-----------|
+/// | Header | Title | Test |
+/// | Paragraph | Text |
+///
+/// ### Reserved Move values
+/// | Value | Description |
+/// |:-----------|:-----------|
+/// | Header | Title |
+/// | Paragraph | Text |
+pub struct ChessMove(u16);
+impl ChessMove {
+    pub fn new(u: u16) -> Self {
+        Self(u)
+    }
+    pub fn new_with_curr_and_dest(u_curr: u16, u_dest: u16) -> Self {
+        Self((u_curr << 6) + u_dest)
+    }
+    pub fn new_with_square(curr: SquareChar, dest: SquareChar) -> Self {
+        let u_from: u16 =
+            (-(rank_to_i8(curr.rank) - 8) as u16 * 8 + file_to_i8(curr.file) as u16 - 1) << 6;
+        let u_to: u16 = -(rank_to_i8(dest.rank) - 8) as u16 * 8 + file_to_i8(dest.file) as u16 - 1;
+        Self(u_from + u_to)
+    }
+    pub fn set(&mut self, u: u16) {
+        self.0 = u;
+    }
+    pub fn set_with_square(&mut self, curr: SquareChar, dest: SquareChar) {
+        let u_from: u16 =
+            (-(rank_to_i8(curr.rank) - 8) as u16 * 8 + file_to_i8(curr.file) as u16 - 1) << 6;
+        let u_to: u16 = -(rank_to_i8(dest.rank) - 8) as u16 * 8 + file_to_i8(dest.file) as u16 - 1;
+        self.0 = u_from + u_to
+    }
+    /// Returns a value between 0..=63
+    pub fn get_curr_square_as_index(&self) -> u16 {
+        (self.0 & 0b0000111111000000) >> 6
+    }
+    /// Returns a value between 0..=63
+    pub fn get_dest_square_as_index(&self) -> u16 {
+        self.0 & 0b0000000000111111
+    }
+    /// Returns a Square struct
+    pub fn get_curr_square_as_struct(&self) -> Square {
+        Square::new((self.0 & 0b0000111111000000) >> 6)
+    }
+    /// Returns a Square struct
+    pub fn get_dest_square_as_struct(&self) -> Square {
+        Square::new(self.0 & 0b0000000000111111)
+    }
+    pub fn get_curr_square_as_struct_char(&self) -> SquareChar {
+        let index = (self.0 & 0b0000111111000000) >> 6;
+        // println!("index: {}", index);
+        let rank = i8_to_rank(-(((index >> 3) as i8 - 8) as i8));
+        let file = i8_to_file(((index % 8) + 1) as i8);
+        SquareChar {
+            rank: rank,
+            file: file,
+        }
+    }
+    pub fn get_dest_square_as_struct_char(&self) -> SquareChar {
+        let index = self.0 & 0b0000000000111111;
+        let rank = i8_to_rank(-(((index >> 3) as i8 - 8) as i8));
+        let file = i8_to_file(((index % 8) + 1) as i8);
+        SquareChar {
+            rank: rank,
+            file: file,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct SquareChar {
+    rank: char,
+    file: char,
+}
+impl SquareChar {
+    pub fn new(rank: char, file: char) -> Self {
+        Self { rank, file }
+    }
+    pub fn get_rank(&self) -> char {
+        self.rank
+    }
+    pub fn get_file(&self) -> char {
+        self.file
+    }
+}
+
+pub struct ChessMoveChar {
+    curr: SquareChar,
+    dest: SquareChar,
+}
+impl ChessMoveChar {
+    pub fn new(curr: SquareChar, dest: SquareChar) -> Self {
+        Self { curr, dest }
+    }
+    pub fn new_with_chars(
+        curr_rank: char,
+        curr_file: char,
+        dest_rank: char,
+        dest_file: char,
+    ) -> Self {
+        Self {
+            curr: SquareChar {
+                rank: curr_rank,
+                file: curr_file,
+            },
+            dest: SquareChar {
+                rank: dest_rank,
+                file: dest_file,
+            },
+        }
+    }
+    pub fn to_chessmove(self) -> ChessMove {
+        ChessMove::new_with_square(self.curr, self.dest)
+    }
+}
