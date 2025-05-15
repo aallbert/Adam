@@ -73,7 +73,7 @@ fn simple_to_fen(simple_board: &Vec<char>) -> FenBoard {
     return fen_board;
 }
 
-pub fn make_a_move(fen_board: FenBoard, mv_string: String) -> FenBoard {
+pub fn make_a_move_testing(fen_board: FenBoard, mv_string: String) -> FenBoard {
     let chars: Vec<char> = mv_string.chars().collect();
     let curr_file = chars[0];
     let curr_rank = chars[1];

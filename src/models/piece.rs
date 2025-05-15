@@ -13,6 +13,25 @@ pub enum Piece {
     BlackQueen = 11,
 }
 
+impl Piece {
+    pub fn to_char(self) -> char {
+        match self {
+            Piece::WhitePawn => 'P',
+            Piece::WhiteBishop => 'B',
+            Piece::WhiteKnight => 'N',
+            Piece::WhiteRook => 'R',
+            Piece::WhiteKing => 'K',
+            Piece::WhiteQueen => 'Q',
+            Piece::BlackPawn => 'p',
+            Piece::BlackBishop => 'b',
+            Piece::BlackKnight => 'n',
+            Piece::BlackRook => 'r',
+            Piece::BlackKing => 'k',
+            Piece::BlackQueen => 'q',
+        }
+    }
+}
+
 impl From<Piece> for u8 {
     fn from(p: Piece) -> u8 {
         p as u8

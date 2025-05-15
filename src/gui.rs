@@ -1,6 +1,6 @@
 use std::io;
 
-use crate::{logics::make_a_move, models::board::FenBoard};
+use crate::{logics::make_a_move_testing, models::board::{ChessBoard, FenBoard}};
 
 pub fn parse_fen_to_board(fen: &str) -> Vec<Vec<char>> {
     fen.split('/')
@@ -20,9 +20,10 @@ pub fn parse_fen_to_board(fen: &str) -> Vec<Vec<char>> {
 }
 
 pub fn testing() {
+    let chess_board = ChessBoard::starting_position();
     // let mut constrains: Constrains = (true, true);
-    let mut fen_string = FenBoard::new("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-    fen_string = FenBoard::new("8/5P2/6P1/1Q1RN3/1p1B4/8/2K5/8");
+    let mut fen_string = FenBoard::new(chess_board.to_fen());
+    // fen_string = FenBoard::new("8/5P2/6P1/1Q1RN3/1p1B4/8/2K5/8");
     // fen_string = FenBoard::new("8/8/8/4N3/8/8/8/8");
 
     loop {
@@ -46,7 +47,7 @@ pub fn testing() {
                     break;
                 }
                 _ => {
-                    fen_string = make_a_move(fen_string, input);
+                    fen_string = make_a_move_testing(fen_string, input);
                 }
             },
             Err(error) => {

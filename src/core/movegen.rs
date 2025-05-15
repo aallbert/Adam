@@ -14,7 +14,7 @@ pub fn possible_moves(
     let curr_square = init_mv.get_curr_square_as_struct();
     let curr_rank_index = curr_square.get_rank_as_index();
     let curr_file_index = curr_square.get_file_as_index();
-    let curr_index = curr_square.to_u16();
+    let curr_index = curr_square.get_as_u16();
 
     match pc {
         //WHITE PIECES
