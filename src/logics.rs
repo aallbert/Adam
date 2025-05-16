@@ -1,9 +1,8 @@
-use crate::core::movegen::possible_moves;
 use crate::interface::BoardType;
-use crate::models::board::{Bitboard, FenBoard, SimpleBoard};
+use crate::models::board::{Bitboard, FenString, SimpleBoard};
 use crate::models::chessmove::{ChessMove, ChessMoveChar};
 
-fn fen_to_simple(fen_board: FenBoard) -> SimpleBoard {
+fn fen_to_simple(fen_board: FenString) -> SimpleBoard {
     let mut fen_board_slice = fen_board.chars();
     let mut simple_board = SimpleBoard::new(None);
 
@@ -48,8 +47,8 @@ fn simple_to_bitboard(board_type: BoardType, simple_board: &SimpleBoard) -> Bitb
     }
 }
 
-fn simple_to_fen(simple_board: &Vec<char>) -> FenBoard {
-    let mut fen_board = FenBoard::new("");
+fn simple_to_fen(simple_board: &Vec<char>) -> FenString {
+    let mut fen_board = FenString::new("");
     for i in 0..8 {
         let mut space_counter: u8 = 0;
         for j in 0..8 {
@@ -73,7 +72,7 @@ fn simple_to_fen(simple_board: &Vec<char>) -> FenBoard {
     return fen_board;
 }
 
-pub fn make_a_move_testing(fen_board: FenBoard, mv_string: String) -> FenBoard {
+pub fn make_a_move_testing(fen_board: FenString, mv_string: String) -> FenString {
     let chars: Vec<char> = mv_string.chars().collect();
     let curr_file = chars[0];
     let curr_rank = chars[1];
@@ -92,7 +91,7 @@ pub fn make_a_move_testing(fen_board: FenBoard, mv_string: String) -> FenBoard {
             "Unvalid: indexing is out of range for move '{:?}'",
             mv_string
         );
-        return FenBoard::new("");
+        return FenString::new("");
     }
     let mut simple_board: SimpleBoard = fen_to_simple(fen_board);
 
@@ -108,10 +107,7 @@ pub fn make_a_move_testing(fen_board: FenBoard, mv_string: String) -> FenBoard {
 
     // println!("simple board \n{:?}", simple_board);
 
-    let b_all_pieces: Bitboard = simple_to_bitboard(BoardType::BlackAllPieces, &simple_board);
-    let w_all_pieces: Bitboard = simple_to_bitboard(BoardType::WhiteAllPieces, &simple_board);
-
-    possible_moves(pc, mv, b_all_pieces, w_all_pieces);
+    // possible_moves(pc, mv, b_all_pieces, w_all_pieces);
 
     simple_board.set(simple_index_to as usize, pc);
     simple_board.set(simple_index_from as usize, '.');

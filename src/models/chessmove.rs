@@ -1,6 +1,6 @@
 use crate::interface::{file_to_i8, i8_to_file, i8_to_rank, rank_to_i8};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 /// struct representing a Square as a u16 with a value between 0..=63
 pub struct Square(u16);
 impl Square {
@@ -30,7 +30,7 @@ impl Square {
             5 => '3',
             6 => '2',
             7 => '1',
-            _ => panic!("out of bounds")
+            _ => panic!("out of bounds"),
         };
         let file = match self.get_file_as_index() {
             0 => 'a',
@@ -41,13 +41,13 @@ impl Square {
             5 => 'f',
             6 => 'g',
             7 => 'h',
-            _ => panic!("out of bounds")
+            _ => panic!("out of bounds"),
         };
         format!("{}{}", rank, file)
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 /// A Chessmove in coordinate Notation decoded in a 16 Bit unsigned Integer.
 ///
 /// - The most significant four Bit are used for encoding specalties, e.g. Pawnpromotion, ...

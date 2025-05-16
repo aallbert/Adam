@@ -1,11 +1,13 @@
 use core::fmt;
 
-use super::{chessmove::Square, piece::{castling, CastleRights, Piece}};
+use super::{
+    chessmove::{ChessMove, Square},
+    piece::{castling, CastleRights, Piece},
+};
 
-
+#[derive(Clone, Copy, Debug)]
 pub struct ChessBoard {
     bitboards: [Bitboard; 12],
-    all_pieces: Bitboard,
     white_to_move: bool,
     castling_rights: u8,
     en_passant: Square,
@@ -16,7 +18,6 @@ impl ChessBoard {
     pub fn new() -> Self {
         Self {
             bitboards: [Bitboard::new(0); 12],
-            all_pieces: Bitboard::new(0),
             white_to_move: true,
             castling_rights: castling::ALL,
             en_passant: Square::new(64), // 64 = no en passant available
@@ -27,24 +28,22 @@ impl ChessBoard {
         let mut board = Self::new();
 
         // White pieces
-        board.bitboards[Piece::WhitePawn as usize]   = Bitboard(0x0000_0000_0000_ff00);
-        board.bitboards[Piece::WhiteRook as usize]   = Bitboard(0x0000_0000_0000_0081);
+        board.bitboards[Piece::WhitePawn as usize] = Bitboard(0x0000_0000_0000_ff00);
+        board.bitboards[Piece::WhiteRook as usize] = Bitboard(0x0000_0000_0000_0081);
         board.bitboards[Piece::WhiteKnight as usize] = Bitboard(0x0000_0000_0000_0042);
         board.bitboards[Piece::WhiteBishop as usize] = Bitboard(0x0000_0000_0000_0024);
-        board.bitboards[Piece::WhiteQueen as usize]  = Bitboard(0x0000_0000_0000_0008);
-        board.bitboards[Piece::WhiteKing as usize]   = Bitboard(0x0000_0000_0000_0010);
+        board.bitboards[Piece::WhiteQueen as usize] = Bitboard(0x0000_0000_0000_0010);
+        board.bitboards[Piece::WhiteKing as usize] = Bitboard(0x0000_0000_0000_0008);
 
         // Black pieces
-        board.bitboards[Piece::BlackPawn as usize]   = Bitboard(0x00ff_0000_0000_0000);
-        board.bitboards[Piece::BlackRook as usize]   = Bitboard(0x8100_0000_0000_0000);
+        board.bitboards[Piece::BlackPawn as usize] = Bitboard(0x00ff_0000_0000_0000);
+        board.bitboards[Piece::BlackRook as usize] = Bitboard(0x8100_0000_0000_0000);
         board.bitboards[Piece::BlackKnight as usize] = Bitboard(0x4200_0000_0000_0000);
         board.bitboards[Piece::BlackBishop as usize] = Bitboard(0x2400_0000_0000_0000);
-        board.bitboards[Piece::BlackQueen as usize]  = Bitboard(0x0800_0000_0000_0000);
-        board.bitboards[Piece::BlackKing as usize]   = Bitboard(0x1000_0000_0000_0000);
+        board.bitboards[Piece::BlackQueen as usize] = Bitboard(0x1000_0000_0000_0000);
+        board.bitboards[Piece::BlackKing as usize] = Bitboard(0x0800_0000_0000_0000);
 
         // All pieces
-        let all = board.bitboards.iter().fold(0u64, |acc, bb| acc | bb.0);
-        board.all_pieces = Bitboard(all);
 
         board.white_to_move = true;
         board.castling_rights = castling::ALL;
@@ -72,11 +71,8 @@ impl ChessBoard {
     }
 
     pub fn get_all_pieces(&self) -> Bitboard {
-        self.all_pieces
-    }
-
-    pub fn set_all_pieces(&mut self, bb: Bitboard) {
-        self.all_pieces = bb;
+        let all = self.bitboards.iter().fold(0u64, |acc, bb| acc | bb.0);
+        Bitboard(all)
     }
 
     pub fn get_white_to_move(&self) -> bool {
@@ -106,14 +102,14 @@ impl ChessBoard {
     pub fn to_fen(&self) -> String {
         let mut fen = String::new();
 
-        for rank in (0..8).rev() {
+        for rank_index in 0..8 {
             let mut empty = 0;
-            for file in 0..8 {
-                let sq = rank * 8 + file;
+            for file_index in 0..8 {
+                let sq = rank_index * 8 + file_index;
                 let mut found = false;
 
-                for (i, bb) in self.bitboards.iter().enumerate() {
-                    if (bb.0 >> sq) & 1 != 0 {
+                for (i, bitboard) in self.bitboards.iter().enumerate() {
+                    if bitboard.get_bit(sq) {
                         if empty > 0 {
                             fen.push_str(&empty.to_string());
                             empty = 0;
@@ -134,7 +130,7 @@ impl ChessBoard {
                 fen.push_str(&empty.to_string());
             }
 
-            if rank != 0 {
+            if rank_index != 7 {
                 fen.push('/');
             }
         }
@@ -147,11 +143,21 @@ impl ChessBoard {
         fen.push(' ');
         let mut castle = String::new();
         use crate::models::piece::castling::*;
-        if self.castling_rights & WHITE_K != 0 { castle.push('K'); }
-        if self.castling_rights & WHITE_Q != 0 { castle.push('Q'); }
-        if self.castling_rights & BLACK_K != 0 { castle.push('k'); }
-        if self.castling_rights & BLACK_Q != 0 { castle.push('q'); }
-        if castle.is_empty() { castle.push('-'); }
+        if self.castling_rights & WHITE_K != 0 {
+            castle.push('K');
+        }
+        if self.castling_rights & WHITE_Q != 0 {
+            castle.push('Q');
+        }
+        if self.castling_rights & BLACK_K != 0 {
+            castle.push('k');
+        }
+        if self.castling_rights & BLACK_Q != 0 {
+            castle.push('q');
+        }
+        if castle.is_empty() {
+            castle.push('-');
+        }
         fen.push_str(&castle);
 
         // En passant
@@ -165,8 +171,30 @@ impl ChessBoard {
         // Halfmove clock / fullmove number (set to 0/1 for now)
         fen.push_str(" 0 1");
 
-        return fen
+        return fen;
     }
+    pub fn make_move(&mut self, mv: ChessMove) {
+        let curr_sq = mv.get_curr_square_as_index();
+        let dest_sq = mv.get_dest_square_as_index();
+
+        for bitboard in self.bitboards.iter_mut() {
+            // clearing bit to cover capturing
+            bitboard.clear_bit(dest_sq);
+            if bitboard.get_bit(curr_sq) {
+                bitboard.clear_bit(curr_sq);
+                bitboard.set_bit(dest_sq);
+            }
+        }
+        self.white_to_move = !self.white_to_move;
+    }
+
+    /// Copies the board, makes the move, returns new board
+    pub fn with_move(mut self, mv: ChessMove) -> Self {
+        self.make_move(mv);
+        self
+    }
+    // todo: const function for castling
+    // todo: pawn promotion
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -193,17 +221,26 @@ impl Bitboard {
     pub fn new(val: u64) -> Self {
         Self(val)
     }
-    pub fn get_bit_on_bitboard(&self, index: u16) -> bool {
+    pub fn get_bit(&self, index: u16) -> bool {
         let mask = 1u64 << (!index & 0b111111);
         (self.0 & mask) != 0
     }
-    pub fn get_bit_on_bitboard_manual(&self, file: i8, rank: i8) -> bool {
+    pub fn get_bit_manual(&self, file: i8, rank: i8) -> bool {
         let index = -(rank - 8) * 8 + file - 1;
         if index >= 64 || index < 0 {
             panic!("Bit index out of range for u64: {}", index);
         }
         let mask = 1u64 << index;
         (self.0 & mask) != 0
+    }
+    pub fn set_bit(&mut self, index: u16) {
+        self.0 |= 1 << (!index & 0b111111);
+    }
+    pub fn clear_bit(&mut self, index: u16) {
+        self.0 &= !(1 << (!index & 0b111111));
+    }
+    pub fn to_u64(self) -> u64 {
+        self.0
     }
 }
 
@@ -241,6 +278,43 @@ impl std::fmt::Binary for Bitboard {
     }
 }
 
+pub struct BitboardIterator {
+    bits: u64,
+}
+
+// Returns the Index of each set Bit in a Bitboard for every iteration
+impl Iterator for BitboardIterator {
+    type Item = u16;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.bits == 0 {
+            None
+        } else {
+            let index = self.bits.leading_zeros() as u16;
+            self.bits &= u64::MAX.checked_shr(index as u32 + 1).unwrap_or(0); // Deletes most significant set bit
+            Some(index)
+        }
+    }
+}
+
+impl IntoIterator for Bitboard {
+    type Item = u16;
+    type IntoIter = BitboardIterator;
+
+    fn into_iter(self) -> Self::IntoIter {
+        BitboardIterator { bits: self.0 }
+    }
+}
+
+impl<'a> IntoIterator for &'a Bitboard {
+    type Item = u16;
+    type IntoIter = BitboardIterator;
+
+    fn into_iter(self) -> Self::IntoIter {
+        BitboardIterator { bits: self.0 }
+    }
+}
+
 // pub mod starting_bitboards {
 //     use super::Bitboard;
 
@@ -248,8 +322,8 @@ impl std::fmt::Binary for Bitboard {
 // }
 
 #[derive(Debug)]
-pub struct FenBoard(String);
-impl FenBoard {
+pub struct FenString(String);
+impl FenString {
     pub fn new<S: Into<String>>(s: S) -> Self {
         Self(s.into())
     }
@@ -264,6 +338,12 @@ impl FenBoard {
     }
     pub fn pop(&mut self) {
         self.0.pop();
+    }
+    pub fn get_pieces_part(&self) -> &str {
+        match self.0.find(' ') {
+            Some(index) => &self.0[0..index],
+            None => &self.0[..],
+        }
     }
 }
 

@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub enum Piece {
     WhitePawn = 0,
     WhiteBishop = 1,
@@ -71,7 +72,7 @@ pub mod castling {
 
 pub enum CastleRights {
     WhiteShort = castling::WHITE_K as isize,
-    WhiteLong  = castling::WHITE_Q as isize,
+    WhiteLong = castling::WHITE_Q as isize,
     BlackShort = castling::BLACK_K as isize,
-    BlackLong  = castling::BLACK_Q as isize,
+    BlackLong = castling::BLACK_Q as isize,
 }
