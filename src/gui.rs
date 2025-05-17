@@ -75,11 +75,11 @@ pub fn testing() {
                     println!("Calculating all positions");
                     // let mut possible_positions: Vec<ChessBoard> = vec![chess_board];
                     let mut possible_boards: Vec<ChessBoard> = vec![chess_board];
-                    for i in 1..=3 {
+                    for i in 1..=6 {
                         let mut new_boards: Vec<ChessBoard> = vec![];
-                        println!("Depth: {}", i);
+                        // println!("Depth: {}", i);
                         for board in possible_boards {
-                            println!("white to move: {}", &board.get_white_to_move());
+                            // println!("white to move: {}", &board.get_white_to_move());
 
                             let all_moves = possible_moves(&board);
                             for &mv in &all_moves {

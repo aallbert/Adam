@@ -1,10 +1,3 @@
-#[derive(Debug)]
-
-pub enum BoardType {
-    WhiteAllPieces,
-    BlackAllPieces,
-}
-
 pub fn file_to_i8(c: char) -> i8 {
     (c as i8 - b'a' as i8) + 1
 }

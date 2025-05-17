@@ -1,4 +1,3 @@
-use crate::interface::BoardType;
 use crate::models::board::{Bitboard, FenString, SimpleBoard};
 use crate::models::chessmove::{ChessMove, ChessMoveChar};
 
@@ -23,29 +22,29 @@ fn fen_to_simple(fen_board: FenString) -> SimpleBoard {
     return simple_board;
 }
 
-fn simple_to_bitboard(board_type: BoardType, simple_board: &SimpleBoard) -> Bitboard {
-    let mut bitboard = Bitboard::new(0);
-    match board_type {
-        BoardType::WhiteAllPieces => {
-            for j in 0..64 {
-                bitboard <<= 1;
-                if ('A'..='Z').contains(&simple_board.as_vec_char()[j]) {
-                    bitboard += 1;
-                }
-            }
-            return bitboard;
-        }
-        BoardType::BlackAllPieces => {
-            for j in 0..64 {
-                bitboard <<= 1;
-                if ('a'..='z').contains(&simple_board.as_vec_char()[j]) {
-                    bitboard += 1;
-                }
-            }
-            return bitboard;
-        }
-    }
-}
+// fn simple_to_bitboard(board_type: BoardType, simple_board: &SimpleBoard) -> Bitboard {
+//     let mut bitboard = Bitboard::new(0);
+//     match board_type {
+//         BoardType::WhiteAllPieces => {
+//             for j in 0..64 {
+//                 bitboard <<= 1;
+//                 if ('A'..='Z').contains(&simple_board.as_vec_char()[j]) {
+//                     bitboard += 1;
+//                 }
+//             }
+//             return bitboard;
+//         }
+//         BoardType::BlackAllPieces => {
+//             for j in 0..64 {
+//                 bitboard <<= 1;
+//                 if ('a'..='z').contains(&simple_board.as_vec_char()[j]) {
+//                     bitboard += 1;
+//                 }
+//             }
+//             return bitboard;
+//         }
+//     }
+// }
 
 fn simple_to_fen(simple_board: &Vec<char>) -> FenString {
     let mut fen_board = FenString::new("");

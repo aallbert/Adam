@@ -79,6 +79,19 @@ impl ChessMove {
         let u_to: u16 = -(rank_to_i8(dest.rank) - 8) as u16 * 8 + file_to_i8(dest.file) as u16 - 1;
         Self(u_from + u_to)
     }
+    pub fn new_with_str(mv: &str) -> Self {
+        let mut chars = mv.chars();
+
+        let curr_file = chars.next().unwrap();
+        let curr_rank = chars.next().unwrap();
+        let dest_file = chars.next().unwrap();
+        let dest_rank = chars.next().unwrap();
+
+        let curr_sq = SquareChar::new(curr_rank, curr_file);
+        let dest_sq = SquareChar::new(dest_rank, dest_file);
+
+        ChessMove::new_with_square(curr_sq, dest_sq)
+    }
     pub fn set(&mut self, u: u16) {
         self.0 = u;
     }
@@ -122,6 +135,22 @@ impl ChessMove {
             rank: rank,
             file: file,
         }
+    }
+    pub fn to_str(self) -> String {
+        let dest_index = self.0 & 0b0000000000111111;
+        let dest_rank = i8_to_rank(-(((dest_index >> 3) as i8 - 8) as i8));
+        let dest_file = i8_to_file(((dest_index % 8) + 1) as i8);
+        let curr_index = (self.0 & 0b0000111111000000) >> 6;
+        let curr_rank = i8_to_rank(-(((curr_index >> 3) as i8 - 8) as i8));
+        let curr_file = i8_to_file(((curr_index % 8) + 1) as i8);
+
+        let mut string = String::new();
+        string.push(curr_file);
+        string.push(curr_rank);
+        string.push(dest_file);
+        string.push(dest_rank);
+
+        string
     }
 }
 

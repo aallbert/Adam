@@ -2,7 +2,7 @@ use core::fmt;
 
 use super::{
     chessmove::{ChessMove, Square},
-    piece::{castling, CastleRights, Piece},
+    piece::{castling, CastleRights, Piece}, piecesquaretables::PIECE_SQUARE_TABLES,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -173,6 +173,17 @@ impl ChessBoard {
 
         return fen;
     }
+
+    pub fn evaluate_position(&self) -> i32 {
+        let mut res = 0;
+        for (pc,bitboard) in self.get_bitboards().iter().enumerate() {
+            for i  in bitboard {
+                res += PIECE_SQUARE_TABLES[pc][i as usize];
+            }
+        };
+        res
+    }
+
     pub fn make_move(&mut self, mv: ChessMove) {
         let curr_sq = mv.get_curr_square_as_index();
         let dest_sq = mv.get_dest_square_as_index();
