@@ -38,7 +38,7 @@ fn main() {
                     l if l.starts_with("position") => {
                         // Updating the current position everytime the position gets passed
                         let last_str = input.split_whitespace().last().unwrap();
-                        if last_str != "moves" {
+                        if last_str != "1" {
                             let mv = ChessMove::new_with_str(input.split_whitespace().last().unwrap());
                             curr_board.make_move(mv);
                         }
