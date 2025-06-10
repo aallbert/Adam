@@ -1,4 +1,4 @@
-use core::{minimax::minimax, movegen::possible_moves};
+use core::minimax::minimax;
 use std::io;
 
 use models::{board::ChessBoard, chessmove::ChessMove};
@@ -29,28 +29,25 @@ fn main() {
                     "isready" => {
                         println!("readyok")
                     }
-                    "ucinewgame" => {
-                        //internal board clear?
-                    }
-                    l if l.starts_with("setoption") => {
-                        //??
-                    }
+                    "ucinewgame" => {}
+                    l if l.starts_with("setoption") => {}
                     l if l.starts_with("position") => {
                         // Updating the current position everytime the position gets passed
                         let last_str = input.split_whitespace().last().unwrap();
                         if last_str != "1" {
-                            let mv = ChessMove::new_with_str(input.split_whitespace().last().unwrap());
+                            let mv =
+                                ChessMove::new_with_str(input.split_whitespace().last().unwrap());
                             curr_board.make_move(mv);
                         }
                     }
                     l if l.starts_with("go") => {
                         // Calculating all positions to a certain depth
-                        let possible_moves = possible_moves(&curr_board);
+                        let possible_moves = curr_board.possible_moves();
                         let mut best_mv = ChessMove::new(0u16); // todo: change
                         // Looking for the best eval for the color that the engine plays as
                         let mut best_eval = 0;
                         for mv in possible_moves {
-                            let curr_eval =  minimax(curr_board.with_move(mv), 4);
+                            let curr_eval = minimax(curr_board.with_move(mv), 4);
                             if curr_board.get_white_to_move() {
                                 if best_eval < curr_eval {
                                     best_eval = curr_eval;

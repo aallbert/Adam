@@ -1,12 +1,14 @@
-use std::io;
-use rand::seq::{IndexedRandom, SliceRandom};
-
-
 use crate::{
-    core::movegen::possible_moves,
     logics::make_a_move_testing,
-    models::{board::{ChessBoard, FenString}, chessmove::ChessMoveChar},
+    models::{
+        board::{ChessBoard, FenString},
+        chessmove::ChessMoveChar,
+    },
 };
+use rand::seq::{IndexedRandom, SliceRandom};
+use std::io;
+
+const DEPTH: i32 = 5;
 
 pub fn parse_fen_pieces_to_board(fen: &str) -> Vec<Vec<char>> {
     fen.split('/')
@@ -47,7 +49,7 @@ pub fn testing() {
         println!("    a  b  c  d  e  f  g  h");
 
         let mut input = String::from("");
-        let all_moves = possible_moves(&chess_board);
+        let all_moves = chess_board.possible_moves();
 
         // todo: relevant for move evaluation
         // let mut new_positions: Vec<ChessBoard> = vec![];
@@ -73,23 +75,32 @@ pub fn testing() {
                 }
                 "all" => {
                     println!("Calculating all positions");
-                    // let mut possible_positions: Vec<ChessBoard> = vec![chess_board];
                     let mut possible_boards: Vec<ChessBoard> = vec![chess_board];
-                    for i in 1..=6 {
+                    let mut debug_check_counter = 0;
+                    for i in 1..=DEPTH {
                         let mut new_boards: Vec<ChessBoard> = vec![];
-                        // println!("Depth: {}", i);
                         for board in possible_boards {
-                            // println!("white to move: {}", &board.get_white_to_move());
-
-                            let all_moves = possible_moves(&board);
+                            let all_moves = board.possible_moves();
                             for &mv in &all_moves {
-                                new_boards.push(board.with_move(mv));
+                                let board_with_mv = board.with_move(mv);
+                                let eval = board_with_mv.evaluate_position();
+                                // eliminating checks
+                                if eval < 10000 && eval > -10000{
+                                    new_boards.push(board_with_mv);
+                                }
+                                else {
+                                    debug_check_counter += 1;
+                                }
                             }
                         }
                         possible_boards = new_boards;
-                        println!("Depth: {}\nCount of possible positions: {}", i, possible_boards.len());
+                        println!(
+                            "Depth: {}\nCount of possible positions: {}",
+                            i,
+                            possible_boards.len()
+                        );
+                        println!("Positions with check: {}", debug_check_counter)
                     }
-                    // println!("ChessBoard: {:?}", chess_board);
                 }
                 _ => {
                     let chars: Vec<char> = input.chars().collect();
@@ -97,7 +108,8 @@ pub fn testing() {
                     let curr_rank = chars[1];
                     let dest_file = chars[2];
                     let dest_rank = chars[3];
-                    let mv_char = ChessMoveChar::new_with_chars(curr_rank, curr_file, dest_rank, dest_file);
+                    let mv_char =
+                        ChessMoveChar::new_with_chars(curr_rank, curr_file, dest_rank, dest_file);
                     let mv = mv_char.to_chessmove();
                     chess_board.make_move(mv);
                 }

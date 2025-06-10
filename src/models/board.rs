@@ -1,8 +1,9 @@
 use core::fmt;
 
 use super::{
-    chessmove::{ChessMove, Square},
-    piece::{castling, CastleRights, Piece}, piecesquaretables::PIECE_SQUARE_TABLES,
+    chessmove::{CastleMove, ChessMove, Square},
+    piece::{CastleRights, Piece, castling},
+    piecesquaretables::PIECE_SQUARE_TABLES,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -176,17 +177,48 @@ impl ChessBoard {
 
     pub fn evaluate_position(&self) -> i32 {
         let mut res = 0;
-        for (pc,bitboard) in self.get_bitboards().iter().enumerate() {
-            for i  in bitboard {
+        for (pc, bitboard) in self.get_bitboards().iter().enumerate() {
+            for i in bitboard {
                 res += PIECE_SQUARE_TABLES[pc][i as usize];
             }
-        };
+        }
         res
     }
 
     pub fn make_move(&mut self, mv: ChessMove) {
+        self.white_to_move = !self.white_to_move;
+
         let curr_sq = mv.get_curr_square_as_index();
         let dest_sq = mv.get_dest_square_as_index();
+
+        // checking if it is a castling move
+        if self.bitboards[Piece::WhiteKing as usize].get_bit(curr_sq) {
+            match dest_sq {
+                /*g1*/
+                62u16 => {
+                    self.white_castle_kingside();
+                    return;
+                }
+                /*c1*/
+                58u16 => {
+                    self.white_castle_queenside();
+                    return;
+                }
+                /*g8*/
+                6u16 => {
+                    self.black_castle_kingside();
+                    return;
+                }
+                /*c8*/
+                2u16 => {
+                    self.black_castle_queenside();
+                    return;
+                }
+                _ => {
+                    return;
+                }
+            }
+        }
 
         for bitboard in self.bitboards.iter_mut() {
             // clearing bit to cover capturing
@@ -196,7 +228,30 @@ impl ChessBoard {
                 bitboard.set_bit(dest_sq);
             }
         }
-        self.white_to_move = !self.white_to_move;
+    }
+
+    pub fn white_castle_kingside(&mut self) {
+        self.bitboards[Piece::WhiteKing as usize] ^= 0x0000_0000_0000_000Au64; // Flipping the bits of the squares affected by the Kings position
+        self.bitboards[Piece::WhiteRook as usize] ^= 0x0000_0000_0000_0005u64; // Flipping the bits of the squares affected by the Rooks position
+        self.castling_rights ^= castling::WHITE_K;
+    }
+
+    pub fn white_castle_queenside(&mut self) {
+        self.bitboards[Piece::WhiteQueen as usize] ^= 0x0000_0000_0000_0028u64;
+        self.bitboards[Piece::WhiteRook as usize] ^= 0x0000_0000_0000_0090u64;
+        self.castling_rights ^= castling::WHITE_Q;
+    }
+
+    pub fn black_castle_kingside(&mut self) {
+        self.bitboards[Piece::BlackKing as usize] ^= 0x000A_0000_0000_0000u64;
+        self.bitboards[Piece::BlackRook as usize] ^= 0x0005_0000_0000_0000u64;
+        self.castling_rights ^= castling::BLACK_K;
+    }
+
+    pub fn black_castle_queenside(&mut self) {
+        self.bitboards[Piece::BlackQueen as usize] ^= 0x0028_0000_0000_0000u64;
+        self.bitboards[Piece::BlackRook as usize] ^= 0x0090_0000_0000_0000u64;
+        self.castling_rights ^= castling::BLACK_Q;
     }
 
     /// Copies the board, makes the move, returns new board
@@ -280,6 +335,12 @@ impl std::ops::ShlAssign<usize> for Bitboard {
 impl std::ops::AddAssign<u64> for Bitboard {
     fn add_assign(&mut self, rhs: u64) {
         self.0 += rhs;
+    }
+}
+
+impl std::ops::BitXorAssign<u64> for Bitboard {
+    fn bitxor_assign(&mut self, rhs: u64) {
+        self.0 ^= rhs;
     }
 }
 
