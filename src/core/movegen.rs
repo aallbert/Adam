@@ -22,7 +22,7 @@ impl ChessBoard {
         let w_pieces = Bitboard::new(w_pieces_u64);
         let all_pieces: Bitboard = self.get_all_pieces();
 
-        let mut res: Vec<ChessMove> = Vec::new();
+        let mut all_moves: Vec<ChessMove> = Vec::new();
 
         // println!("Debug - white_to_move: {}", board.get_white_to_move());
 
@@ -55,12 +55,12 @@ impl ChessBoard {
                         //check if the square in front of the pawn is free
                         let dest_index = curr_index - 8;
                         if !all_pieces.get_bit(dest_index) {
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             //check if pawn is on first move
                             if curr_rank_index == 6 {
                                 let dest_index = curr_index - 16;
                                 if !all_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                 }
@@ -71,14 +71,14 @@ impl ChessBoard {
                         if curr_file_index < 7 {
                             let dest_index = curr_index - 7;
                             if b_pieces.get_bit(dest_index) {
-                                res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                                all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             }
                         }
                         //capture left
                         if curr_file_index > 0 {
                             let dest_index = curr_index - 9;
                             if b_pieces.get_bit(dest_index) {
-                                res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                                all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             }
                         }
 
@@ -93,7 +93,7 @@ impl ChessBoard {
                             if curr_index > 7 {
                                 let mut dest_index = curr_index - 7;
                                 while !w_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -112,7 +112,7 @@ impl ChessBoard {
                             if curr_index < 56 {
                                 let mut dest_index = curr_index + 9;
                                 while !w_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -133,7 +133,7 @@ impl ChessBoard {
                             if curr_index > 7 {
                                 let mut dest_index = curr_index - 9;
                                 while !w_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -151,7 +151,7 @@ impl ChessBoard {
                             if curr_index < 56 {
                                 let mut dest_index = curr_index + 7;
                                 while !w_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -180,7 +180,7 @@ impl ChessBoard {
                                 continue;
                             }
                             if !w_pieces.get_bit(dest_index) {
-                                res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                                all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             }
                         }
                         let dest_index_offsets_neg: [i16; 4] = [-6, -10, -15, -17];
@@ -196,7 +196,7 @@ impl ChessBoard {
                                 continue;
                             }
                             if !w_pieces.get_bit(dest_index) {
-                                res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                                all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             }
                         }
                     }
@@ -208,7 +208,7 @@ impl ChessBoard {
                             if w_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Rook
                             if b_pieces.get_bit(dest_index) {
                                 break;
@@ -221,7 +221,7 @@ impl ChessBoard {
                             if w_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Rook
                             if b_pieces.get_bit(dest_index) {
                                 break;
@@ -235,7 +235,7 @@ impl ChessBoard {
                             if w_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Rook
                             if b_pieces.get_bit(dest_index) {
                                 break;
@@ -249,7 +249,7 @@ impl ChessBoard {
                             if w_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Rook
                             if b_pieces.get_bit(dest_index) {
                                 break;
@@ -269,7 +269,7 @@ impl ChessBoard {
                                 continue;
                             }
                             if !w_pieces.get_bit(dest_index) {
-                                res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                                all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             }
                         }
                         let dest_index_offsets_neg: [i16; 4] = [-1, -7, -8, -9];
@@ -285,34 +285,34 @@ impl ChessBoard {
                                 continue;
                             }
                             if !w_pieces.get_bit(dest_index) {
-                                res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                                all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             }
                         }
                         if self.get_castling_rights() & castling::WHITE_K != 0
                             && !all_pieces.get_bit(61u16)
                             && !all_pieces.get_bit(62u16)
                         {
-                            res.push(CastleMove::WHITE_K)
+                            all_moves.push(CastleMove::WHITE_K)
                         }
                         if self.get_castling_rights() & castling::WHITE_Q != 0
                             && !all_pieces.get_bit(59u16)
                             && !all_pieces.get_bit(58u16)
                             && !all_pieces.get_bit(57u16)
                         {
-                            res.push(CastleMove::WHITE_Q)
+                            all_moves.push(CastleMove::WHITE_Q)
                         }
                         if self.get_castling_rights() & castling::BLACK_K != 0
                             && !all_pieces.get_bit(5u16)
                             && !all_pieces.get_bit(6u16)
                         {
-                            res.push(CastleMove::BLACK_K)
+                            all_moves.push(CastleMove::BLACK_K)
                         }
                         if self.get_castling_rights() & castling::BLACK_Q != 0
                             && !all_pieces.get_bit(3u16)
                             && !all_pieces.get_bit(2u16)
                             && !all_pieces.get_bit(1u16)
                         {
-                            res.push(CastleMove::BLACK_Q)
+                            all_moves.push(CastleMove::BLACK_Q)
                         }
                     }
                     Piece::WhiteQueen => {
@@ -324,7 +324,7 @@ impl ChessBoard {
                             if curr_index > 7 {
                                 let mut dest_index = curr_index - 7;
                                 while !w_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -343,7 +343,7 @@ impl ChessBoard {
                             if curr_index < 56 {
                                 let mut dest_index = curr_index + 9;
                                 while !w_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -364,7 +364,7 @@ impl ChessBoard {
                             if curr_index > 7 {
                                 let mut dest_index = curr_index - 9;
                                 while !w_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -382,7 +382,7 @@ impl ChessBoard {
                             if curr_index < 56 {
                                 let mut dest_index = curr_index + 7;
                                 while !w_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -404,7 +404,7 @@ impl ChessBoard {
                             if w_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Queen
                             if b_pieces.get_bit(dest_index) {
                                 break;
@@ -417,7 +417,7 @@ impl ChessBoard {
                             if w_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Queen
                             if b_pieces.get_bit(dest_index) {
                                 break;
@@ -431,7 +431,7 @@ impl ChessBoard {
                             if w_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Queen
                             if b_pieces.get_bit(dest_index) {
                                 break;
@@ -445,7 +445,7 @@ impl ChessBoard {
                             if w_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Queen
                             if b_pieces.get_bit(dest_index) {
                                 break;
@@ -459,12 +459,12 @@ impl ChessBoard {
                         //check if the square in front of the pawn is free
                         let dest_index = curr_index + 8;
                         if !all_pieces.get_bit(dest_index) {
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             //check if pawn is on first move
                             if curr_rank_index == 1 {
                                 let dest_index = curr_index + 16;
                                 if !all_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                 }
@@ -475,14 +475,14 @@ impl ChessBoard {
                         if curr_file_index < 7 {
                             let dest_index = curr_index + 9;
                             if w_pieces.get_bit(dest_index) {
-                                res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                                all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             }
                         }
                         //capture right (pawn perspective)
                         if curr_file_index > 1 {
                             let dest_index = curr_index + 7;
                             if w_pieces.get_bit(dest_index) {
-                                res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                                all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             }
                         }
 
@@ -497,7 +497,7 @@ impl ChessBoard {
                             if curr_index > 7 {
                                 let mut dest_index = curr_index - 7;
                                 while !b_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -516,7 +516,7 @@ impl ChessBoard {
                             if curr_index < 56 {
                                 let mut dest_index = curr_index + 9;
                                 while !b_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -537,7 +537,7 @@ impl ChessBoard {
                             if curr_index > 7 {
                                 let mut dest_index = curr_index - 9;
                                 while !b_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -555,7 +555,7 @@ impl ChessBoard {
                             if curr_index < 56 {
                                 let mut dest_index = curr_index + 7;
                                 while !b_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -584,7 +584,7 @@ impl ChessBoard {
                                 continue;
                             }
                             if !b_pieces.get_bit(dest_index) {
-                                res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                                all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             }
                         }
                         let dest_index_offsets_neg: [i16; 4] = [-6, -10, -15, -17];
@@ -600,7 +600,7 @@ impl ChessBoard {
                                 continue;
                             }
                             if !b_pieces.get_bit(dest_index) {
-                                res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                                all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             }
                         }
                     }
@@ -612,7 +612,7 @@ impl ChessBoard {
                             if b_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Rook
                             if w_pieces.get_bit(dest_index) {
                                 break;
@@ -625,7 +625,7 @@ impl ChessBoard {
                             if b_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Rook
                             if w_pieces.get_bit(dest_index) {
                                 break;
@@ -639,7 +639,7 @@ impl ChessBoard {
                             if b_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Rook
                             if w_pieces.get_bit(dest_index) {
                                 break;
@@ -653,7 +653,7 @@ impl ChessBoard {
                             if b_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Rook
                             if w_pieces.get_bit(dest_index) {
                                 break;
@@ -673,7 +673,7 @@ impl ChessBoard {
                                 continue;
                             }
                             if !b_pieces.get_bit(dest_index) {
-                                res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                                all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             }
                         }
                         let dest_index_offsets_neg: [i16; 4] = [-1, -7, -8, -9];
@@ -689,7 +689,7 @@ impl ChessBoard {
                                 continue;
                             }
                             if !b_pieces.get_bit(dest_index) {
-                                res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                                all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             }
                         }
                     }
@@ -702,7 +702,7 @@ impl ChessBoard {
                             if curr_index > 7 {
                                 let mut dest_index = curr_index - 7;
                                 while !b_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -721,7 +721,7 @@ impl ChessBoard {
                             if curr_index < 56 {
                                 let mut dest_index = curr_index + 9;
                                 while !b_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -742,7 +742,7 @@ impl ChessBoard {
                             if curr_index > 7 {
                                 let mut dest_index = curr_index - 9;
                                 while !b_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -760,7 +760,7 @@ impl ChessBoard {
                             if curr_index < 56 {
                                 let mut dest_index = curr_index + 7;
                                 while !b_pieces.get_bit(dest_index) {
-                                    res.push(ChessMove::new_with_curr_and_dest(
+                                    all_moves.push(ChessMove::new_with_curr_and_dest(
                                         curr_index, dest_index,
                                     ));
                                     // Checking if a black piece is on the new position of the Bishop
@@ -782,7 +782,7 @@ impl ChessBoard {
                             if b_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Queen
                             if w_pieces.get_bit(dest_index) {
                                 break;
@@ -795,7 +795,7 @@ impl ChessBoard {
                             if b_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Queen
                             if w_pieces.get_bit(dest_index) {
                                 break;
@@ -809,7 +809,7 @@ impl ChessBoard {
                             if b_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Queen
                             if w_pieces.get_bit(dest_index) {
                                 break;
@@ -823,7 +823,7 @@ impl ChessBoard {
                             if b_pieces.get_bit(dest_index) {
                                 break;
                             }
-                            res.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
+                            all_moves.push(ChessMove::new_with_curr_and_dest(curr_index, dest_index));
                             // Checking if a black piece is on the new position of the Queen
                             if w_pieces.get_bit(dest_index) {
                                 break;
@@ -834,14 +834,20 @@ impl ChessBoard {
             }
         }
 
-        // println!("Count of moves: {}", res.len());
+        // removing moves, that would open the king to a check (illegal)
 
-        // println!("All Moves:");
-        // for mv in &res {
-        //     let curr_sq = mv.get_curr_square_as_struct_char();
-        //     let dest_sq = mv.get_dest_square_as_struct_char();
-        //     println!("from {}{} - to {}{}", curr_sq.get_file(), curr_sq.get_rank(), dest_sq.get_file(), dest_sq.get_rank());
-        // }
+        let mut res: Vec<ChessMove> = Vec::new();
+        for mv in all_moves {
+            let new_board = &self.with_move(mv);
+            let eval = new_board.evaluate_position();
+            if !(eval > 10000 || eval < -10000) {
+                res.push(mv);
+            }
+            else {
+                dbg!(eval);
+            }
+        }
+
 
         return res;
     }

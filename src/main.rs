@@ -1,17 +1,45 @@
 use core::minimax::minimax;
 use std::io;
+use std::env;
 
 use models::{board::ChessBoard, chessmove::ChessMove};
+use testing::perft_test;
 
 mod core;
 mod gui;
 mod interface;
 mod logics;
 mod models;
+mod testing;
 
 fn main() {
-    println!("Setup");
     let mut curr_board = ChessBoard::starting_position();
+    // Testing with perftree-cli
+    let args: Vec<String> = env::args().collect();
+    if args.len() > 1 {
+        dbg!(&args);
+        let depth_str = &args[1];
+        let depth: i32 = depth_str.parse().unwrap();
+
+        // let fen_str = &args[2];
+        // todo: implement from_fen()
+        // curr_board = match ChessBoard::from_fen(fen_str) {
+        //     Ok(b) => b,
+        //     Err(e) => {
+        //         std::process::exit(1);
+        //     }
+        // };
+
+        if args.len() > 3 {
+            let moves = &args[3];
+            let moves_as_slices: Vec<&str> = moves.split_whitespace().collect();
+            for mv_slice in moves_as_slices {
+                curr_board.make_move(ChessMove::new_with_str(mv_slice));
+            }
+        }
+
+        perft_test(curr_board, depth);
+    }
     loop {
         let mut input = String::from("");
         match io::stdin().read_line(&mut input) {
