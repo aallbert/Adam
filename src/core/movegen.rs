@@ -1,6 +1,6 @@
 use crate::interface::abs_diff_u16;
 use crate::models::board::{Bitboard, ChessBoard};
-use crate::models::chessmove::{CastleMove, ChessMove, Square};
+use crate::models::chessmove::{CastleMove, ChessMove};
 use crate::models::piece::{Piece, castling};
 
 impl ChessBoard {
@@ -29,12 +29,9 @@ impl ChessBoard {
 
         for (i, bitboard) in (index_offset..).zip(player_boards.iter()) {
             let pc = Piece::try_from(i as u8).unwrap();
-            for sq_index in bitboard {
-                let curr_square = Square::new(sq_index);
-                let curr_rank_index = curr_square.get_rank_as_index();
-                let curr_file_index = curr_square.get_file_as_index();
-                let curr_index = sq_index; // todo: remove
-
+            for curr_index in bitboard {
+                let curr_rank_index = curr_index >> 3;
+                let curr_file_index = curr_index & 0b111;
                 match pc {
                     //WHITE PIECES
                     Piece::WhitePawn => {
@@ -357,8 +354,6 @@ impl ChessBoard {
                             }
                         }
                         if bitboard.to_u64() & b_attackmask.to_u64() == 0 {
-                            // dbg!(b_attackmask.to_u64());
-                            // dbg!(bitboard.to_u64());
                             if self.get_castling_rights() & castling::WHITE_K != 0
                                 && !all_pieces.get_bit(61u16)
                                 && !all_pieces.get_bit(62u16)
@@ -375,8 +370,6 @@ impl ChessBoard {
                                 all_moves.push(CastleMove::WHITE_Q)
                             }
                         } else {
-                            // dbg!(b_attackmask.to_u64());
-                            // dbg!(bitboard.to_u64());
                         }
                     }
                     Piece::WhiteQueen => {

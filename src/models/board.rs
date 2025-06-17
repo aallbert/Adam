@@ -20,7 +20,7 @@ pub struct ChessBoard {
     // e.g.for e2e4, en_passant would be 44 (e3)
     en_passant: u16,
 }
-
+// allowed dead code, since only some smaller setter functions aren't used
 #[allow(dead_code)]
 impl ChessBoard {
     pub fn new() -> Self {
@@ -284,16 +284,6 @@ impl ChessBoard {
         let curr_sq = mv.get_curr_square_as_index();
         let dest_sq = mv.get_dest_square_as_index();
 
-        // todo: delete bc of weird ass gui
-        // todo: delete counterparts in movegen!!!!!!!!!!!!!!
-        // match msb {
-        //     castling::WHITE_K => {self.castling_rights &= !castling::WHITE_K }
-        //     castling::WHITE_Q => {self.castling_rights &= !castling::WHITE_Q }
-        //     castling::BLACK_K => {self.castling_rights &= !castling::BLACK_K }
-        //     castling::BLACK_Q => {self.castling_rights &= !castling::BLACK_Q }
-        //     _ => {}
-        // }
-
         // checking if it is a castling move, removing castling rights for kingmoves
         if self.bitboards[Piece::WhiteKing as usize].get_bit(curr_sq) {
             match dest_sq {
@@ -450,10 +440,6 @@ impl ChessBoard {
                 bitboard.set_bit(dest_sq);
             }
         }
-
-        // todo remove
-        // self.set_w_attackmask(self.calc_w_attackmask());
-        // self.set_b_attackmask(self.calc_b_attackmask());
     }
 
     pub fn white_castle_kingside(&mut self) {
@@ -624,56 +610,5 @@ impl<'a> IntoIterator for &'a Bitboard {
 
     fn into_iter(self) -> Self::IntoIter {
         BitboardIterator { bits: self.0 }
-    }
-}
-
-// pub mod starting_bitboards {
-//     use super::Bitboard;
-
-//     pub const WHITE_PAWNS: Bitboard = Bitboard::new(0x00);
-// }
-
-#[derive(Debug)]
-pub struct FenString(String);
-impl FenString {
-    pub fn new<S: Into<String>>(s: S) -> Self {
-        Self(s.into())
-    }
-    pub fn as_str(&self) -> &str {
-        &self.0
-    }
-    pub fn chars(&self) -> std::str::Chars<'_> {
-        self.0.chars()
-    }
-    pub fn push(&mut self, c: char) {
-        self.0.push(c);
-    }
-    pub fn pop(&mut self) {
-        self.0.pop();
-    }
-    pub fn get_pieces_part(&self) -> &str {
-        match self.0.find(' ') {
-            Some(index) => &self.0[0..index],
-            None => &self.0[..],
-        }
-    }
-}
-
-pub struct SimpleBoard(Vec<char>);
-impl SimpleBoard {
-    pub fn new(val: Option<Vec<char>>) -> Self {
-        match val {
-            Some(vec) => Self(vec),
-            None => Self(Vec::new()),
-        }
-    }
-    pub fn as_vec_char(&self) -> &Vec<char> {
-        &self.0
-    }
-    pub fn set(&mut self, index: usize, c: char) {
-        self.0[index] = c;
-    }
-    pub fn push(&mut self, c: char) {
-        self.0.push(c);
     }
 }

@@ -7,7 +7,6 @@ use testing::perft_test;
 mod core;
 mod gui;
 mod interface;
-mod logics;
 mod models;
 mod testing;
 

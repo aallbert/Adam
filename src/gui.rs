@@ -1,6 +1,6 @@
 use crate::models::{
-        board::{ChessBoard, FenString},
-        chessmove::ChessMoveChar,
+        board::ChessBoard,
+        chessmove::ChessMove,
     };
 use rand::seq::IndexedRandom;
 use std::io;
@@ -26,13 +26,13 @@ pub fn parse_fen_pieces_to_board(fen: &str) -> Vec<Vec<char>> {
 
 pub fn testing() {
     let mut chess_board = ChessBoard::starting_position();
-    // let mut constrains: Constrains = (true, true);
-    // fen_string = FenBoard::new("8/5P2/6P1/1Q1RN3/1p1B4/8/2K5/8");
-    // fen_string = FenBoard::new("8/8/8/4N3/8/8/8/8");
 
     loop {
-        let fen_string = FenString::new(chess_board.to_fen());
-        let fen_pieces = String::from(fen_string.get_pieces_part());
+        let fen_string = String::from(chess_board.to_fen());
+        let fen_pieces = match fen_string.find(' '){
+            Some(index) => fen_string[0..index].to_string(),
+            None => fen_string[..].to_string(),
+        };
         let board = parse_fen_pieces_to_board(&fen_pieces.as_str());
         println!("\n\n  +------------------------+");
         for (i, row) in board.iter().enumerate() {
@@ -101,14 +101,7 @@ pub fn testing() {
                     chess_board = ChessBoard::from_fen(&fen_string)
                 }
                 _ => {
-                    let chars: Vec<char> = input.chars().collect();
-                    let curr_file = chars[0];
-                    let curr_rank = chars[1];
-                    let dest_file = chars[2];
-                    let dest_rank = chars[3];
-                    let mv_char =
-                        ChessMoveChar::new_with_chars(curr_rank, curr_file, dest_rank, dest_file);
-                    let mv = mv_char.to_chessmove();
+                    let mv = ChessMove::new_with_str(&input);
                     chess_board.make_move(mv);
                 }
             },

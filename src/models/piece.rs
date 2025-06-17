@@ -71,10 +71,3 @@ pub mod castling {
 
     pub const ALL: u8 = 0b1111;
 }
-
-pub enum CastleRights {
-    WhiteShort = castling::WHITE_K as isize,
-    WhiteLong = castling::WHITE_Q as isize,
-    BlackShort = castling::BLACK_K as isize,
-    BlackLong = castling::BLACK_Q as isize,
-}
