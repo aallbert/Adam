@@ -64,8 +64,10 @@ impl TryFrom<u8> for Piece {
 pub mod castling {
     pub const WHITE_K: u8 = 0b0001;
     pub const WHITE_Q: u8 = 0b0010;
+    pub const WHITE_BOTH: u8 = 0b0011;
     pub const BLACK_K: u8 = 0b0100;
     pub const BLACK_Q: u8 = 0b1000;
+    pub const BLACK_BOTH: u8 = 0b1100;
 
     pub const ALL: u8 = 0b1111;
 }

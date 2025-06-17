@@ -49,7 +49,7 @@ pub fn testing() {
         println!("    a  b  c  d  e  f  g  h");
 
         let mut input = String::from("");
-        let all_moves = chess_board.possible_moves();
+        let all_moves = chess_board.possible_moves(true);
 
         // todo: relevant for move evaluation
         // let mut new_positions: Vec<ChessBoard> = vec![];
@@ -80,15 +80,14 @@ pub fn testing() {
                     for i in 1..=DEPTH {
                         let mut new_boards: Vec<ChessBoard> = vec![];
                         for board in possible_boards {
-                            let all_moves = board.possible_moves();
+                            let all_moves = board.possible_moves(true);
                             for &mv in &all_moves {
                                 let board_with_mv = board.with_move(mv);
                                 let eval = board_with_mv.evaluate_position();
                                 // eliminating checks
-                                if eval < 10000 && eval > -10000{
+                                if eval < 10000 && eval > -10000 {
                                     new_boards.push(board_with_mv);
-                                }
-                                else {
+                                } else {
                                     debug_check_counter += 1;
                                 }
                             }
@@ -101,6 +100,9 @@ pub fn testing() {
                         );
                         println!("Positions with check: {}", debug_check_counter)
                     }
+                }
+                "best" => {
+                    
                 }
                 _ => {
                     let chars: Vec<char> = input.chars().collect();

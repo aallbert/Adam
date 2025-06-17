@@ -55,16 +55,14 @@ impl Square {
 /// - The least significant six Bit represent the destinated square as an index 0-63
 ///
 /// ### Encoding of the four MSB
-/// **Used Bit:** MSB <br>
-/// **Description:** Indicates Castling <br>
-/// **Usage:** ```0b1000_000000_00xxxx``` castles depending on which x-Bit is set
-///
-///
-/// ### Reserved Move values
-/// | Value | Description |
-/// |:-----------|:-----------|
-/// | Header | Title |
-/// | Paragraph | Text |
+/// **Used Bit:** all <br>
+/// **Description:** Indicates pawn promotion <br>
+/// **Usage:**<br>
+/// ```0b0001_xxxxxx_yyyyyy``` Knight <br>
+/// ```0b0010_xxxxxx_yyyyyy``` Bishop <br>
+/// ```0b0100_xxxxxx_yyyyyy``` Rook <br>
+/// ```0b1000_xxxxxx_yyyyyy``` Queen <br>
+
 pub struct ChessMove(u16);
 impl ChessMove {
     pub fn new(u: u16) -> Self {
@@ -90,6 +88,26 @@ impl ChessMove {
         let curr_sq = SquareChar::new(curr_rank, curr_file);
         let dest_sq = SquareChar::new(dest_rank, dest_file);
 
+        // encoding promotions
+        if mv.len() == 5 {
+            let encoding_str = chars.next().unwrap();
+            let mv_int = ChessMove::new_with_square(curr_sq, dest_sq).0;
+            match encoding_str {
+                'n' => {
+                    return ChessMove::new(0b0001_000000_000000 | mv_int);
+                }
+                'b' => {
+                    return ChessMove::new(0b0010_000000_000000 | mv_int);
+                }
+                'r' => {
+                    return ChessMove::new(0b0100_000000_000000 | mv_int);
+                }
+                'q' => {
+                    return ChessMove::new(0b1000_000000_000000 | mv_int);
+                }
+                _ => {}
+            }
+        }
         ChessMove::new_with_square(curr_sq, dest_sq)
     }
     pub fn set(&mut self, u: u16) {
@@ -106,22 +124,25 @@ impl ChessMove {
     }
     /// Returns a value between 0..=63
     pub fn get_curr_square_as_index(&self) -> u16 {
-        (self.0 & 0b0000111111000000) >> 6
+        (self.0 & 0b0000_111111_000000) >> 6
     }
     /// Returns a value between 0..=63
     pub fn get_dest_square_as_index(&self) -> u16 {
-        self.0 & 0b0000000000111111
+        self.0 & 0b0000_000000_111111
+    }
+    pub fn get_four_msb(&self) -> u8 {
+        ((self.0 & 0b1111_000000_000000) >> 12) as u8
     }
     /// Returns a Square struct
     pub fn get_curr_square_as_struct(&self) -> Square {
-        Square::new((self.0 & 0b0000111111000000) >> 6)
+        Square::new((self.0 & 0b0000_111111_000000) >> 6)
     }
     /// Returns a Square struct
     pub fn get_dest_square_as_struct(&self) -> Square {
-        Square::new(self.0 & 0b0000000000111111)
+        Square::new(self.0 & 0b0000_000000_111111)
     }
     pub fn get_curr_square_as_struct_char(&self) -> SquareChar {
-        let index = (self.0 & 0b0000111111000000) >> 6;
+        let index = (self.0 & 0b0000_111111_000000) >> 6;
         // println!("index: {}", index);
         let rank = i8_to_rank(-(((index >> 3) as i8 - 8) as i8));
         let file = i8_to_file(((index % 8) + 1) as i8);
@@ -131,7 +152,7 @@ impl ChessMove {
         }
     }
     pub fn get_dest_square_as_struct_char(&self) -> SquareChar {
-        let index = self.0 & 0b0000000000111111;
+        let index = self.0 & 0b0000_000000_111111;
         let rank = i8_to_rank(-(((index >> 3) as i8 - 8) as i8));
         let file = i8_to_file(((index % 8) + 1) as i8);
         SquareChar {
@@ -153,6 +174,15 @@ impl ChessMove {
         string.push(dest_file);
         string.push(dest_rank);
 
+        let encoding = (self.0 & 0b1111_000000_000000) >> 12;
+        match encoding {
+            0b0001 => string.push('n'),
+            0b0010 => string.push('b'),
+            0b0100 => string.push('r'),
+            0b1000 => string.push('q'),
+            _ => {}
+        };
+
         string
     }
 }
@@ -172,6 +202,13 @@ impl CastleMove {
     pub const WHITE_Q: ChessMove = ChessMove(0b0000_111100_111010);
     pub const BLACK_K: ChessMove = ChessMove(0b0000_000100_000110);
     pub const BLACK_Q: ChessMove = ChessMove(0b0000_000100_000010);
+}
+
+pub enum EnPassant {}
+
+impl EnPassant {
+    pub const EN_PASSANT_CAPTURE: u8 = 0b1001;
+    pub const EN_PASSANT_AVAILABLE: u8 = 0b0110;
 }
 
 #[derive(Debug, Copy, Clone)]

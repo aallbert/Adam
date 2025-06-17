@@ -1,6 +1,6 @@
 use core::minimax::minimax;
-use std::io;
 use std::env;
+use std::io;
 
 use models::{board::ChessBoard, chessmove::ChessMove};
 use testing::perft_test;
@@ -70,7 +70,7 @@ fn main() {
                     }
                     l if l.starts_with("go") => {
                         // Calculating all positions to a certain depth
-                        let possible_moves = curr_board.possible_moves();
+                        let possible_moves = curr_board.possible_moves(true);
                         let mut best_mv = ChessMove::new(0u16); // todo: change
                         // Looking for the best eval for the color that the engine plays as
                         let mut best_eval = 0;
@@ -88,8 +88,6 @@ fn main() {
                                 }
                             }
                         }
-                        // println!("Debug - best_eval: {}", best_eval);
-                        // println!("Debug - white_to_move: {}", curr_board.get_white_to_move());
                         println!("info pv {}", best_mv.to_str());
                         println!("bestmove {}", best_mv.to_str());
                         curr_board.make_move(best_mv);

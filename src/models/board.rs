@@ -1,8 +1,13 @@
 use core::fmt;
 
+use crate::interface::abs_diff_u16;
+
 use super::{
     chessmove::{CastleMove, ChessMove, Square},
-    piece::{CastleRights, Piece, castling},
+    piece::{
+        CastleRights, Piece,
+        castling::{self, BLACK_BOTH},
+    },
     piecesquaretables::PIECE_SQUARE_TABLES,
 };
 
@@ -11,7 +16,11 @@ pub struct ChessBoard {
     bitboards: [Bitboard; 12],
     white_to_move: bool,
     castling_rights: u8,
-    en_passant: Square,
+    // en_passant represents the index at which a pan should be captured
+    // e.g.for e2e4, en_passant would be 44 (e3)
+    en_passant: u16,
+    w_attackmask: Bitboard,
+    b_attackmask: Bitboard,
 }
 
 #[allow(dead_code)]
@@ -21,7 +30,9 @@ impl ChessBoard {
             bitboards: [Bitboard::new(0); 12],
             white_to_move: true,
             castling_rights: castling::ALL,
-            en_passant: Square::new(64), // 64 = no en passant available
+            en_passant: 64, // 64 = no en passant available
+            w_attackmask: Bitboard::new(0),
+            b_attackmask: Bitboard::new(0),
         }
     }
 
@@ -29,26 +40,28 @@ impl ChessBoard {
         let mut board = Self::new();
 
         // White pieces
-        board.bitboards[Piece::WhitePawn as usize] = Bitboard(0x0000_0000_0000_ff00);
-        board.bitboards[Piece::WhiteRook as usize] = Bitboard(0x0000_0000_0000_0081);
-        board.bitboards[Piece::WhiteKnight as usize] = Bitboard(0x0000_0000_0000_0042);
-        board.bitboards[Piece::WhiteBishop as usize] = Bitboard(0x0000_0000_0000_0024);
-        board.bitboards[Piece::WhiteQueen as usize] = Bitboard(0x0000_0000_0000_0010);
-        board.bitboards[Piece::WhiteKing as usize] = Bitboard(0x0000_0000_0000_0008);
+        board.bitboards[Piece::WhitePawn as usize] = Bitboard::new(0x0000_0000_0000_ff00);
+        board.bitboards[Piece::WhiteRook as usize] = Bitboard::new(0x0000_0000_0000_0081);
+        board.bitboards[Piece::WhiteKnight as usize] = Bitboard::new(0x0000_0000_0000_0042);
+        board.bitboards[Piece::WhiteBishop as usize] = Bitboard::new(0x0000_0000_0000_0024);
+        board.bitboards[Piece::WhiteQueen as usize] = Bitboard::new(0x0000_0000_0000_0010);
+        board.bitboards[Piece::WhiteKing as usize] = Bitboard::new(0x0000_0000_0000_0008);
 
         // Black pieces
-        board.bitboards[Piece::BlackPawn as usize] = Bitboard(0x00ff_0000_0000_0000);
-        board.bitboards[Piece::BlackRook as usize] = Bitboard(0x8100_0000_0000_0000);
-        board.bitboards[Piece::BlackKnight as usize] = Bitboard(0x4200_0000_0000_0000);
-        board.bitboards[Piece::BlackBishop as usize] = Bitboard(0x2400_0000_0000_0000);
-        board.bitboards[Piece::BlackQueen as usize] = Bitboard(0x1000_0000_0000_0000);
-        board.bitboards[Piece::BlackKing as usize] = Bitboard(0x0800_0000_0000_0000);
+        board.bitboards[Piece::BlackPawn as usize] = Bitboard::new(0x00ff_0000_0000_0000);
+        board.bitboards[Piece::BlackRook as usize] = Bitboard::new(0x8100_0000_0000_0000);
+        board.bitboards[Piece::BlackKnight as usize] = Bitboard::new(0x4200_0000_0000_0000);
+        board.bitboards[Piece::BlackBishop as usize] = Bitboard::new(0x2400_0000_0000_0000);
+        board.bitboards[Piece::BlackQueen as usize] = Bitboard::new(0x1000_0000_0000_0000);
+        board.bitboards[Piece::BlackKing as usize] = Bitboard::new(0x0800_0000_0000_0000);
 
-        // All pieces
+        // Attack masks
+        board.w_attackmask = Bitboard::new(0x0000_0000_00ff_0000);
+        board.b_attackmask = Bitboard::new(0x0000_ff00_0000_0000);
 
         board.white_to_move = true;
         board.castling_rights = castling::ALL;
-        board.en_passant = Square::new(64);
+        board.en_passant = 64;
 
         board
     }
@@ -92,12 +105,12 @@ impl ChessBoard {
         self.castling_rights = rights;
     }
 
-    pub fn get_en_passant(&self) -> Square {
+    pub fn get_en_passant(&self) -> u16 {
         self.en_passant
     }
 
-    pub fn set_en_passant(&mut self, square: Square) {
-        self.en_passant = square;
+    pub fn set_en_passant(&mut self, index: u16) {
+        self.en_passant = index;
     }
 
     pub fn to_fen(&self) -> String {
@@ -163,8 +176,8 @@ impl ChessBoard {
 
         // En passant
         fen.push(' ');
-        if self.en_passant.get_as_u16() < 64 {
-            fen.push_str(&self.en_passant.get_as_str());
+        if self.en_passant < 64 {
+            fen.push_str(&self.en_passant.to_string());
         } else {
             fen.push('-');
         }
@@ -191,34 +204,163 @@ impl ChessBoard {
         let curr_sq = mv.get_curr_square_as_index();
         let dest_sq = mv.get_dest_square_as_index();
 
-        // checking if it is a castling move
+        // todo: delete bc of weird ass gui
+        // todo: delete counterparts in movegen!!!!!!!!!!!!!!
+        // match msb {
+        //     castling::WHITE_K => {self.castling_rights &= !castling::WHITE_K }
+        //     castling::WHITE_Q => {self.castling_rights &= !castling::WHITE_Q }
+        //     castling::BLACK_K => {self.castling_rights &= !castling::BLACK_K }
+        //     castling::BLACK_Q => {self.castling_rights &= !castling::BLACK_Q }
+        //     _ => {}
+        // }
+
+        // checking if it is a castling move, removing castling rights for kingmoves
         if self.bitboards[Piece::WhiteKing as usize].get_bit(curr_sq) {
             match dest_sq {
-                /*g1*/
+                // g1
                 62u16 => {
                     self.white_castle_kingside();
                     return;
                 }
-                /*c1*/
+                // c1
                 58u16 => {
                     self.white_castle_queenside();
                     return;
                 }
-                /*g8*/
+                _ => {
+                    self.castling_rights &= castling::BLACK_BOTH;
+                }
+            }
+        }
+
+        if self.bitboards[Piece::BlackKing as usize].get_bit(curr_sq) {
+            match dest_sq {
+                // g8
                 6u16 => {
                     self.black_castle_kingside();
                     return;
                 }
-                /*c8*/
+                // c8
                 2u16 => {
                     self.black_castle_queenside();
                     return;
                 }
                 _ => {
-                    return;
+                    self.castling_rights &= castling::WHITE_BOTH;
                 }
             }
         }
+
+        // checking for castling rights when rook moves/moved
+        match curr_sq {
+            56 => self.castling_rights &= !castling::WHITE_K,
+            63 => self.castling_rights &= !castling::WHITE_Q,
+            0 => self.castling_rights &= !castling::BLACK_K,
+            7 => self.castling_rights &= !castling::BLACK_Q,
+            _ => {}
+        }
+
+        // handling promotion moves, intern and if passed by gui
+        let four_msb = mv.get_four_msb();
+        if four_msb != 0 {
+            if curr_sq > dest_sq {
+                self.bitboards[Piece::WhitePawn as usize].clear_bit(curr_sq);
+                self.bitboards[Piece::BlackBishop as usize].clear_bit(dest_sq);
+                self.bitboards[Piece::BlackKnight as usize].clear_bit(dest_sq);
+                self.bitboards[Piece::BlackRook as usize].clear_bit(dest_sq);
+                self.bitboards[Piece::BlackQueen as usize].clear_bit(dest_sq);
+                match four_msb {
+                    0b0001 => {
+                        self.bitboards[Piece::WhiteKnight as usize].set_bit(dest_sq);
+                        self.en_passant = 64;
+                        return;
+                    }
+                    0b0010 => {
+                        self.bitboards[Piece::WhiteBishop as usize].set_bit(dest_sq);
+                        self.en_passant = 64;
+                        return;
+                    }
+                    0b0100 => {
+                        self.bitboards[Piece::WhiteRook as usize].set_bit(dest_sq);
+                        self.en_passant = 64;
+                        return;
+                    }
+                    0b1000 => {
+                        self.bitboards[Piece::WhiteQueen as usize].set_bit(dest_sq);
+                        self.en_passant = 64;
+                        return;
+                    }
+                    _ => {}
+                }
+            } else {
+                self.bitboards[Piece::BlackPawn as usize].clear_bit(curr_sq);
+                self.bitboards[Piece::WhiteBishop as usize].clear_bit(dest_sq);
+                self.bitboards[Piece::WhiteKnight as usize].clear_bit(dest_sq);
+                self.bitboards[Piece::WhiteRook as usize].clear_bit(dest_sq);
+                self.bitboards[Piece::WhiteQueen as usize].clear_bit(dest_sq);
+                match four_msb {
+                    0b0001 => {
+                        self.bitboards[Piece::BlackKnight as usize].set_bit(dest_sq);
+                        self.en_passant = 64;
+                        return;
+                    }
+                    0b0010 => {
+                        self.bitboards[Piece::BlackBishop as usize].set_bit(dest_sq);
+                        self.en_passant = 64;
+                        return;
+                    }
+                    0b0100 => {
+                        self.bitboards[Piece::BlackRook as usize].set_bit(dest_sq);
+                        self.en_passant = 64;
+                        return;
+                    }
+                    0b1000 => {
+                        self.bitboards[Piece::BlackQueen as usize].set_bit(dest_sq);
+                        self.en_passant = 64;
+                        return;
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        // checking for en passant availability
+        if abs_diff_u16(curr_sq, dest_sq) == 16
+            && (self.bitboards[Piece::WhitePawn as usize].get_bit(curr_sq)
+                || self.bitboards[Piece::BlackPawn as usize].get_bit(curr_sq))
+        {
+            self.en_passant = (curr_sq + dest_sq) >> 1;
+            // already can make move here, since we know it's a pawn move
+            // checking for pawn color move
+            if curr_sq > dest_sq {
+                self.bitboards[Piece::WhitePawn as usize].clear_bit(curr_sq);
+                self.bitboards[Piece::WhitePawn as usize].set_bit(dest_sq);
+            } else {
+                self.bitboards[Piece::BlackPawn as usize].clear_bit(curr_sq);
+                self.bitboards[Piece::BlackPawn as usize].set_bit(dest_sq);
+            }
+            return;
+        }
+        // checking for taking a pawn with en passant
+        if dest_sq == self.en_passant
+            && (self.bitboards[Piece::WhitePawn as usize].get_bit(curr_sq)
+                || self.bitboards[Piece::BlackPawn as usize].get_bit(curr_sq))
+        {
+            self.en_passant = 64;
+            // already can make move here, since we know it's a pawn move
+            // checking for pawn color move
+            if curr_sq > dest_sq {
+                self.bitboards[Piece::WhitePawn as usize].clear_bit(curr_sq);
+                self.bitboards[Piece::WhitePawn as usize].set_bit(dest_sq);
+                self.bitboards[Piece::BlackPawn as usize].clear_bit(dest_sq + 8);
+            } else {
+                self.bitboards[Piece::BlackPawn as usize].clear_bit(curr_sq);
+                self.bitboards[Piece::BlackPawn as usize].set_bit(dest_sq);
+                self.bitboards[Piece::WhitePawn as usize].clear_bit(dest_sq - 8);
+            }
+            return;
+        }
+        self.en_passant = 64;
 
         for bitboard in self.bitboards.iter_mut() {
             // clearing bit to cover capturing
@@ -228,30 +370,54 @@ impl ChessBoard {
                 bitboard.set_bit(dest_sq);
             }
         }
+
+        // todo remove
+        // self.set_w_attackmask(self.calc_w_attackmask());
+        // self.set_b_attackmask(self.calc_b_attackmask());
     }
 
     pub fn white_castle_kingside(&mut self) {
         self.bitboards[Piece::WhiteKing as usize] ^= 0x0000_0000_0000_000Au64; // Flipping the bits of the squares affected by the Kings position
         self.bitboards[Piece::WhiteRook as usize] ^= 0x0000_0000_0000_0005u64; // Flipping the bits of the squares affected by the Rooks position
-        self.castling_rights ^= castling::WHITE_K;
+        self.castling_rights &= castling::BLACK_BOTH;
+        self.en_passant = 64;
     }
 
     pub fn white_castle_queenside(&mut self) {
         self.bitboards[Piece::WhiteQueen as usize] ^= 0x0000_0000_0000_0028u64;
         self.bitboards[Piece::WhiteRook as usize] ^= 0x0000_0000_0000_0090u64;
-        self.castling_rights ^= castling::WHITE_Q;
+        self.castling_rights &= castling::BLACK_BOTH;
+        self.en_passant = 64;
     }
 
     pub fn black_castle_kingside(&mut self) {
         self.bitboards[Piece::BlackKing as usize] ^= 0x000A_0000_0000_0000u64;
         self.bitboards[Piece::BlackRook as usize] ^= 0x0005_0000_0000_0000u64;
-        self.castling_rights ^= castling::BLACK_K;
+        self.castling_rights &= castling::WHITE_BOTH;
+        self.en_passant = 64;
     }
 
     pub fn black_castle_queenside(&mut self) {
         self.bitboards[Piece::BlackQueen as usize] ^= 0x0028_0000_0000_0000u64;
         self.bitboards[Piece::BlackRook as usize] ^= 0x0090_0000_0000_0000u64;
-        self.castling_rights ^= castling::BLACK_Q;
+        self.castling_rights &= castling::WHITE_BOTH;
+        self.en_passant = 64;
+    }
+
+    pub fn get_w_attackmask(&self) -> Bitboard {
+        self.w_attackmask
+    }
+
+    pub fn get_b_attackmask(&self) -> Bitboard {
+        self.b_attackmask
+    }
+
+    pub fn set_w_attackmask(&mut self, mask: Bitboard) {
+        self.w_attackmask = mask;
+    }
+
+    pub fn set_b_attackmask(&mut self, mask: Bitboard) {
+        self.b_attackmask = mask;
     }
 
     /// Copies the board, makes the move, returns new board
@@ -259,8 +425,6 @@ impl ChessBoard {
         self.make_move(mv);
         self
     }
-    // todo: const function for castling
-    // todo: pawn promotion
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -341,6 +505,18 @@ impl std::ops::AddAssign<u64> for Bitboard {
 impl std::ops::BitXorAssign<u64> for Bitboard {
     fn bitxor_assign(&mut self, rhs: u64) {
         self.0 ^= rhs;
+    }
+}
+
+impl std::ops::BitOrAssign<u64> for Bitboard {
+    fn bitor_assign(&mut self, rhs: u64) {
+        self.0 |= rhs;
+    }
+}
+
+impl std::ops::BitOrAssign<Bitboard> for Bitboard {
+    fn bitor_assign(&mut self, rhs: Bitboard) {
+        self.0 |= rhs.0;
     }
 }
 
