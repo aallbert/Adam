@@ -12,7 +12,6 @@ mod models;
 mod testing;
 
 fn main() {
-    let mut curr_board_testing = ChessBoard::starting_position();
     // Testing with perftree-cli
     let args: Vec<String> = env::args().collect();
     if args.len() > 1 {
@@ -21,7 +20,7 @@ fn main() {
         let depth: i32 = depth_str.parse().unwrap();
 
         let fen_str = &args[2];
-        curr_board_testing = ChessBoard::from_fen(fen_str);
+        let mut curr_board_testing = ChessBoard::from_fen(fen_str);
         if args.len() > 3 {
             let moves = &args[3];
             let moves_as_slices: Vec<&str> = moves.split_whitespace().collect();
