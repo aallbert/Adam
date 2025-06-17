@@ -49,15 +49,7 @@ pub fn testing() {
         println!("    a  b  c  d  e  f  g  h");
 
         let mut input = String::from("");
-        let all_moves = chess_board.possible_moves(true);
-
-        // todo: relevant for move evaluation
-        // let mut new_positions: Vec<ChessBoard> = vec![];
-        // for mv in all_moves {
-        //     let new_board = chess_board.clone();
-        //     new_board.make_move(mv);
-        //     new_positions.push(new_board);
-        // }
+        let all_moves = chess_board.possible_moves();
 
         match io::stdin().read_line(&mut input) {
             Ok(_) => match input.trim() {
@@ -71,7 +63,6 @@ pub fn testing() {
                     let rand_mv = all_moves.choose(&mut rng).cloned().unwrap();
                     println!("Chosen Move: {:?}\n", rand_mv);
                     chess_board.make_move(rand_mv);
-                    // println!("ChessBoard: {:?}", chess_board);
                 }
                 "all" => {
                     println!("Calculating all positions");
@@ -80,7 +71,7 @@ pub fn testing() {
                     for i in 1..=DEPTH {
                         let mut new_boards: Vec<ChessBoard> = vec![];
                         for board in possible_boards {
-                            let all_moves = board.possible_moves(true);
+                            let all_moves = board.possible_moves();
                             for &mv in &all_moves {
                                 let board_with_mv = board.with_move(mv);
                                 let eval = board_with_mv.evaluate_position();
@@ -102,7 +93,15 @@ pub fn testing() {
                     }
                 }
                 "best" => {
-                    
+                    let best_mv = chess_board.best_mv(3);
+                    println!("best move: {}", best_mv.to_str());
+                }
+                "fen" => {
+                    println!("input fen");
+                    let mut fen_string = String::new();
+                    io::stdin().read_line(&mut fen_string)
+                        .expect("Failed to read line");
+                    chess_board = ChessBoard::from_fen(&fen_string)
                 }
                 _ => {
                     let chars: Vec<char> = input.chars().collect();

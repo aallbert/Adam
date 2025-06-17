@@ -4,7 +4,7 @@ use crate::models::chessmove::{CastleMove, ChessMove, Square};
 use crate::models::piece::{Piece, castling};
 
 impl ChessBoard {
-    pub fn possible_moves(&self, check_for_illegal: bool) -> Vec<ChessMove> {
+    pub fn possible_moves(&self) -> Vec<ChessMove> {
         let all_boards = self.get_bitboards();
         let player_boards: [Bitboard; 6] = if self.get_white_to_move() {
             all_boards[0..6].try_into().unwrap()

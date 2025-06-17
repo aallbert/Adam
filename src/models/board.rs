@@ -19,8 +19,6 @@ pub struct ChessBoard {
     // en_passant represents the index at which a pan should be captured
     // e.g.for e2e4, en_passant would be 44 (e3)
     en_passant: u16,
-    w_attackmask: Bitboard,
-    b_attackmask: Bitboard,
 }
 
 #[allow(dead_code)]
@@ -31,8 +29,6 @@ impl ChessBoard {
             white_to_move: true,
             castling_rights: castling::ALL,
             en_passant: 64, // 64 = no en passant available
-            w_attackmask: Bitboard::new(0),
-            b_attackmask: Bitboard::new(0),
         }
     }
 
@@ -55,14 +51,98 @@ impl ChessBoard {
         board.bitboards[Piece::BlackQueen as usize] = Bitboard::new(0x1000_0000_0000_0000);
         board.bitboards[Piece::BlackKing as usize] = Bitboard::new(0x0800_0000_0000_0000);
 
-        // Attack masks
-        board.w_attackmask = Bitboard::new(0x0000_0000_00ff_0000);
-        board.b_attackmask = Bitboard::new(0x0000_ff00_0000_0000);
-
         board.white_to_move = true;
         board.castling_rights = castling::ALL;
         board.en_passant = 64;
 
+        board
+    }
+
+    pub fn from_fen(fen: &str) -> Self {
+        let parts: Vec<&str> = fen.split_whitespace().collect();
+
+        let mut board = Self::new();
+        // Clear all bitboards before setting
+        for i in 0..12 {
+            board.bitboards[i] = Bitboard::new(0);
+        }
+
+        // Piece placement
+        let ranks: Vec<&str> = parts[0].split('/').collect();
+
+        for (rank_idx, rank_str) in ranks.iter().enumerate() {
+            let mut file_idx = 0;
+            for char_code in rank_str.chars() {
+                if char_code.is_digit(10) {
+                    let empty_squares = char_code.to_digit(10).unwrap() as usize;
+                    file_idx += empty_squares;
+                } else {
+                    let piece_type = match char_code {
+                        'P' => Some(Piece::WhitePawn),
+                        'N' => Some(Piece::WhiteKnight),
+                        'B' => Some(Piece::WhiteBishop),
+                        'R' => Some(Piece::WhiteRook),
+                        'Q' => Some(Piece::WhiteQueen),
+                        'K' => Some(Piece::WhiteKing),
+                        'p' => Some(Piece::BlackPawn),
+                        'n' => Some(Piece::BlackKnight),
+                        'b' => Some(Piece::BlackBishop),
+                        'r' => Some(Piece::BlackRook),
+                        'q' => Some(Piece::BlackQueen),
+                        'k' => Some(Piece::BlackKing),
+                        _ => {continue;},
+                    };
+
+                    if let Some(piece) = piece_type {
+                        let square_index = (rank_idx * 8) + file_idx;
+                        board.bitboards[piece as usize].set_bit(square_index as u16);
+                    }
+                    file_idx += 1;
+                }
+            }
+        }
+
+        // Active color
+        board.white_to_move = match parts[1] {
+            "w" => true,
+            "b" => false,
+            _ => true
+        };
+
+        // Castling availability
+        board.castling_rights = !castling::ALL;
+        for c in parts[2].chars() {
+            match c {
+                'K' => board.castling_rights |= castling::WHITE_K,
+                'Q' => board.castling_rights |= castling::WHITE_Q,
+                'k' => board.castling_rights |= castling::BLACK_K,
+                'q' => board.castling_rights |= castling::BLACK_Q,
+                '-' => {} // No castling rights
+                _ => {},
+            }
+        }
+
+        // En passant target square
+        board.en_passant = 64;
+        if parts[3] != "-" {
+            let file_char = parts[3].chars().next().unwrap();
+            let rank_char = parts[3].chars().nth(1).unwrap();
+
+            let file = match file_char {
+                'a' => 0, 'b' => 1, 'c' => 2, 'd' => 3,
+                'e' => 4, 'f' => 5, 'g' => 6, 'h' => 7,
+                _ => 0,
+            };
+
+            let rank = match rank_char {
+                '1' => 7, '2' => 6, '3' => 5, '4' => 4,
+                '5' => 3, '6' => 2, '7' => 1, '8' => 0,
+                _ => 0,
+            };
+
+            // Convert file/rank to your bitboard index (0=a8, 63=h1)
+            board.en_passant = (rank * 8 + file) as u16;
+        }
         board
     }
 
@@ -402,22 +482,6 @@ impl ChessBoard {
         self.bitboards[Piece::BlackRook as usize] ^= 0x0090_0000_0000_0000u64;
         self.castling_rights &= castling::WHITE_BOTH;
         self.en_passant = 64;
-    }
-
-    pub fn get_w_attackmask(&self) -> Bitboard {
-        self.w_attackmask
-    }
-
-    pub fn get_b_attackmask(&self) -> Bitboard {
-        self.b_attackmask
-    }
-
-    pub fn set_w_attackmask(&mut self, mask: Bitboard) {
-        self.w_attackmask = mask;
-    }
-
-    pub fn set_b_attackmask(&mut self, mask: Bitboard) {
-        self.b_attackmask = mask;
     }
 
     /// Copies the board, makes the move, returns new board

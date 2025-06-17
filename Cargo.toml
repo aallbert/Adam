@@ -5,4 +5,5 @@ edition = "2024"
 
 [dependencies]
 rand = "0.9.1"
+# rayon = { path = "C:/Users/LFJ1FE/source/repos/Chess_Bot_Battle/rayon/rayon-main" } # todo: change for github
 # perftree-cli = "0.2.0" todo: add for github
