@@ -1,5 +1,5 @@
-use crate::models::board::{Bitboard, FenString, SimpleBoard};
-use crate::models::chessmove::{ChessMove, ChessMoveChar};
+use crate::models::board::{FenString, SimpleBoard};
+use crate::models::chessmove::ChessMoveChar;
 
 fn fen_to_simple(fen_board: FenString) -> SimpleBoard {
     let mut fen_board_slice = fen_board.chars();

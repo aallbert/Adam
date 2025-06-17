@@ -1,11 +1,8 @@
-use crate::{
-    logics::make_a_move_testing,
-    models::{
+use crate::models::{
         board::{ChessBoard, FenString},
         chessmove::ChessMoveChar,
-    },
-};
-use rand::seq::{IndexedRandom, SliceRandom};
+    };
+use rand::seq::IndexedRandom;
 use std::io;
 
 const DEPTH: i32 = 5;

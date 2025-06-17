@@ -3,10 +3,10 @@ use core::fmt;
 use crate::interface::abs_diff_u16;
 
 use super::{
-    chessmove::{CastleMove, ChessMove, Square},
+    chessmove::ChessMove,
     piece::{
-        CastleRights, Piece,
-        castling::{self, BLACK_BOTH},
+        Piece,
+        castling::{self},
     },
     piecesquaretables::PIECE_SQUARE_TABLES,
 };

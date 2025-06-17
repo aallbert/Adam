@@ -116,7 +116,7 @@ impl ChessBoard {
                     break;
                 }
                 // Checking if the move would lead over the border
-                if abs_diff_u16(dest_index & 0b111, (sq_index & 0b111)) > 2 {
+                if abs_diff_u16(dest_index & 0b111, sq_index & 0b111) > 2 {
                     continue;
                 }
                 attackmask.set_bit(dest_index);
@@ -130,7 +130,7 @@ impl ChessBoard {
                 }
                 let dest_index = dest_index_i16 as u16;
                 // Checking if the move would lead over the border
-                if abs_diff_u16(dest_index & 0b111, (sq_index & 0b111)) > 2 {
+                if abs_diff_u16(dest_index & 0b111, sq_index & 0b111) > 2 {
                     continue;
                 }
                 attackmask.set_bit(dest_index);
@@ -295,7 +295,7 @@ impl ChessBoard {
                     break;
                 }
                 // Checking if the move would lead over the border
-                if abs_diff_u16(dest_index & 0b111, (sq_index & 0b111)) > 1 {
+                if abs_diff_u16(dest_index & 0b111, sq_index & 0b111) > 1 {
                     continue;
                 }
                 attackmask.set_bit(sq_index);
@@ -309,7 +309,7 @@ impl ChessBoard {
                 }
                 let dest_index = dest_index_i16 as u16;
                 // Checking if the move would lead over the border
-                if abs_diff_u16(dest_index & 0b111, (sq_index & 0b111)) > 1 {
+                if abs_diff_u16(dest_index & 0b111, sq_index & 0b111) > 1 {
                     continue;
                 }
                 attackmask.set_bit(sq_index);
@@ -427,7 +427,7 @@ impl ChessBoard {
                     break;
                 }
                 // Checking if the move would lead over the border
-                if abs_diff_u16(dest_index & 0b111, (sq_index & 0b111)) > 2 {
+                if abs_diff_u16(dest_index & 0b111, sq_index & 0b111) > 2 {
                     continue;
                 }
                 attackmask.set_bit(dest_index);
@@ -441,7 +441,7 @@ impl ChessBoard {
                 }
                 let dest_index = dest_index_i16 as u16;
                 // Checking if the move would lead over the border
-                if abs_diff_u16(dest_index & 0b111, (sq_index & 0b111)) > 2 {
+                if abs_diff_u16(dest_index & 0b111, sq_index & 0b111) > 2 {
                     continue;
                 }
                 attackmask.set_bit(dest_index);
@@ -606,7 +606,7 @@ impl ChessBoard {
                     break;
                 }
                 // Checking if the move would lead over the border
-                if abs_diff_u16(dest_index & 0b111, (sq_index & 0b111)) > 1 {
+                if abs_diff_u16(dest_index & 0b111, sq_index & 0b111) > 1 {
                     continue;
                 }
                 attackmask.set_bit(sq_index);
@@ -620,7 +620,7 @@ impl ChessBoard {
                 }
                 let dest_index = dest_index_i16 as u16;
                 // Checking if the move would lead over the border
-                if abs_diff_u16(dest_index & 0b111, (sq_index & 0b111)) > 1 {
+                if abs_diff_u16(dest_index & 0b111, sq_index & 0b111) > 1 {
                     continue;
                 }
                 attackmask.set_bit(sq_index);
