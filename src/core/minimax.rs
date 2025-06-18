@@ -2,7 +2,7 @@ use std::cmp;
 
 use crate::models::board::ChessBoard;
 impl ChessBoard {
-    pub fn minimax(&self, mut depth: u8) -> i32 {
+    pub fn minimax(&self, depth: u8) -> i32 {
         if depth == 0 {
             return self.evaluate_position();
         };

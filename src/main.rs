@@ -23,7 +23,7 @@ fn main() {
             let moves = &args[3];
             let moves_as_slices: Vec<&str> = moves.split_whitespace().collect();
             for mv_slice in moves_as_slices {
-                curr_board_testing.make_move(ChessMove::new_with_str(mv_slice));
+                curr_board_testing.make_move(ChessMove::from_str(mv_slice));
             }
         }
 
@@ -67,7 +67,7 @@ fn main() {
                             .collect();
                         // Calculate board (stateless)
                         for mv in moves_strings {
-                            curr_board.make_move(ChessMove::new_with_str(mv));
+                            curr_board.make_move(ChessMove::from_str(mv));
                         }
                     }
                     l if l.starts_with("go") => {
@@ -79,6 +79,10 @@ fn main() {
                     }
                     "stop" => {
                         continue;
+                    }
+                    "quit" => {
+                        println!("bye");
+                        break;
                     }
                     _ => {
                         println!("Invalid input: {}\nContinuing", input.trim());

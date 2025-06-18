@@ -11,7 +11,7 @@ use super::{
     piecesquaretables::PIECE_SQUARE_TABLES,
 };
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ChessBoard {
     bitboards: [Bitboard; 12],
     white_to_move: bool,
@@ -112,7 +112,7 @@ impl ChessBoard {
         };
 
         // Castling availability
-        board.castling_rights = !castling::ALL;
+        board.castling_rights = 0;
         for c in parts[2].chars() {
             match c {
                 'K' => board.castling_rights |= castling::WHITE_K,

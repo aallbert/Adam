@@ -108,7 +108,7 @@ pub fn testing() {
                     depth = depth_string.trim().parse::<u8>().unwrap_or(0);
                 }
                 _ => {
-                    let mv = ChessMove::new_with_str(&input);
+                    let mv = ChessMove::from_str(&input);
                     chess_board.make_move(mv);
                 }
             },

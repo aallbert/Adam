@@ -30,7 +30,7 @@ impl ChessMove {
         let u_to: u16 = -(rank_to_i8(dest.rank) - 8) as u16 * 8 + file_to_i8(dest.file) as u16 - 1;
         Self(u_from + u_to)
     }
-    pub fn new_with_str(mv: &str) -> Self {
+    pub fn from_str(mv: &str) -> Self {
         let mut chars = mv.chars();
 
         let curr_file = chars.next().unwrap();
