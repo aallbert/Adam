@@ -77,7 +77,6 @@ impl ChessBoard {
         let mut movemask = Bitboard::new(0);
         let all_pieces = self.get_all_pieces();
         if !all_pieces.get_bit(sq_index - 8) {
-
             movemask.set_bit(sq_index - 8);
             if sq_index >> 3 == 6 && !all_pieces.get_bit(sq_index - 16) {
                 movemask.set_bit(sq_index - 16);
@@ -108,7 +107,6 @@ impl ChessBoard {
         let mut movemask = Bitboard::new(0);
         let all_pieces = self.get_all_pieces();
         if !all_pieces.get_bit(sq_index + 8) {
-
             movemask.set_bit(sq_index + 8);
             if sq_index >> 3 == 1 && !all_pieces.get_bit(sq_index + 16) {
                 movemask.set_bit(sq_index + 16);
