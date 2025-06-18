@@ -1,4 +1,4 @@
-# Rust Chessbot
+# Adam
 
 A simple chess engine built in Rust
 
