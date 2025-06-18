@@ -19,22 +19,22 @@ impl ChessBoard {
         let w_queens = self.get_bitboard(Piece::WhiteQueen as usize);
         let w_king = self.get_bitboard(Piece::WhiteKing as usize);
 
-        for sq_index in w_pawns{
+        for sq_index in w_pawns {
             attackmask |= ChessBoard::calc_w_pawn_attackmask(sq_index);
         }
-        for sq_index in w_bishops{
+        for sq_index in w_bishops {
             attackmask |= self.calc_bishop_attackmask(sq_index);
         }
-        for sq_index in w_knights{
+        for sq_index in w_knights {
             attackmask |= ChessBoard::calc_knight_attackmask(sq_index);
         }
-        for sq_index in w_rooks{
+        for sq_index in w_rooks {
             attackmask |= self.calc_rook_attackmask(sq_index);
         }
-        for sq_index in w_queens{
+        for sq_index in w_queens {
             attackmask |= self.calc_queen_attackmask(sq_index);
         }
-        for sq_index in w_king{
+        for sq_index in w_king {
             attackmask |= ChessBoard::calc_king_attackmask(sq_index);
         }
 
@@ -52,22 +52,22 @@ impl ChessBoard {
         let b_queens = self.get_bitboard(Piece::BlackQueen as usize);
         let b_king = self.get_bitboard(Piece::BlackKing as usize);
 
-        for sq_index in b_pawns{
+        for sq_index in b_pawns {
             attackmask |= ChessBoard::calc_b_pawn_attackmask(sq_index);
         }
-        for sq_index in b_bishops{
+        for sq_index in b_bishops {
             attackmask |= self.calc_bishop_attackmask(sq_index);
         }
-        for sq_index in b_knights{
+        for sq_index in b_knights {
             attackmask |= ChessBoard::calc_knight_attackmask(sq_index);
         }
-        for sq_index in b_rooks{
+        for sq_index in b_rooks {
             attackmask |= self.calc_rook_attackmask(sq_index);
         }
-        for sq_index in b_queens{
+        for sq_index in b_queens {
             attackmask |= self.calc_queen_attackmask(sq_index);
         }
-        for sq_index in b_king{
+        for sq_index in b_king {
             attackmask |= ChessBoard::calc_king_attackmask(sq_index);
         }
 
@@ -77,12 +77,9 @@ impl ChessBoard {
         let mut movemask = Bitboard::new(0);
         let all_pieces = self.get_all_pieces();
         if !all_pieces.get_bit(sq_index - 8) {
-            if sq_index < 8 {
-                panic!("Pawn shouldn't be on last rank! sq_index: {}", sq_index);
-            }
 
             movemask.set_bit(sq_index - 8);
-            if sq_index >> 3 == 6 && !all_pieces.get_bit(sq_index - 16){
+            if sq_index >> 3 == 6 && !all_pieces.get_bit(sq_index - 16) {
                 movemask.set_bit(sq_index - 16);
             }
         }
@@ -91,9 +88,6 @@ impl ChessBoard {
 
     pub fn calc_w_pawn_attackmask(sq_index: u16) -> Bitboard {
         let mut attackmask = Bitboard::new(0);
-        if sq_index < 8 {
-            panic!("Pawn shouldn't be on last rank! sq_index: {}", sq_index);
-        }
 
         match sq_index & 0b111 {
             0 => {
@@ -114,9 +108,6 @@ impl ChessBoard {
         let mut movemask = Bitboard::new(0);
         let all_pieces = self.get_all_pieces();
         if !all_pieces.get_bit(sq_index + 8) {
-            if sq_index > 55 {
-                panic!("Pawn shouldn't be on first rank! sq_index: {}", sq_index);
-            }
 
             movemask.set_bit(sq_index + 8);
             if sq_index >> 3 == 1 && !all_pieces.get_bit(sq_index + 16) {
@@ -128,9 +119,6 @@ impl ChessBoard {
 
     pub fn calc_b_pawn_attackmask(sq_index: u16) -> Bitboard {
         let mut attackmask = Bitboard::new(0);
-        if sq_index > 55 {
-            panic!("Pawn shouldn't be on first rank! sq_index: {}", sq_index);
-        }
 
         match sq_index & 0b111 {
             0 => {
@@ -151,76 +139,66 @@ impl ChessBoard {
         let mut attackmask = Bitboard::new(0);
         let all_pieces = self.get_all_pieces();
 
-            if (sq_index & 0b111) != 7 {
-                // moving to upper right
-                // Checking if piece is on 8th rank
-                if sq_index > 7 {
-                    let mut dest_index = sq_index - 7;
-                    loop {
-                        attackmask.set_bit(dest_index);
-                        // Checking if a piece is on the new position of the Bishop
-                        if all_pieces.get_bit(dest_index)
-                            || dest_index & 0b111 == 7
-                            || dest_index < 8
-                        {
-                            break;
-                        }
-                        dest_index -= 7;
+        if (sq_index & 0b111) != 7 {
+            // moving to upper right
+            // Checking if piece is on 8th rank
+            if sq_index > 7 {
+                let mut dest_index = sq_index - 7;
+                loop {
+                    attackmask.set_bit(dest_index);
+                    // Checking if a piece is on the new position of the Bishop
+                    if all_pieces.get_bit(dest_index) || dest_index & 0b111 == 7 || dest_index < 8 {
+                        break;
                     }
-                }
-
-                // moving to bottom right
-                // Checking if piece is on 1st rank
-                if sq_index < 56 {
-                    let mut dest_index = sq_index + 9;
-                    loop {
-                        attackmask.set_bit(dest_index);
-                        // Checking if a black piece is on the new position of the Bishop
-                        if all_pieces.get_bit(dest_index)
-                            || dest_index & 0b111 == 7
-                            || dest_index > 55
-                        {
-                            break;
-                        }
-                        dest_index += 9;
-                    }
+                    dest_index -= 7;
                 }
             }
 
-            if (sq_index & 0b111) != 0 {
-                // moving to upper left
-                // Checking if piece is on 8th rank
-                if sq_index > 7 {
-                    let mut dest_index = sq_index - 9;
-                    loop {
-                        attackmask.set_bit(dest_index);
-                        // Checking if a black piece is on the new position of the Bishop
-                        if all_pieces.get_bit(dest_index)
-                            || dest_index & 0b111 == 0
-                            || dest_index < 8
-                        {
-                            break;
-                        }
-                        dest_index -= 9;
+            // moving to bottom right
+            // Checking if piece is on 1st rank
+            if sq_index < 56 {
+                let mut dest_index = sq_index + 9;
+                loop {
+                    attackmask.set_bit(dest_index);
+                    // Checking if a black piece is on the new position of the Bishop
+                    if all_pieces.get_bit(dest_index) || dest_index & 0b111 == 7 || dest_index > 55
+                    {
+                        break;
                     }
-                }
-
-                // moving to bottom left
-                if sq_index < 56 {
-                    let mut dest_index = sq_index + 7;
-                    loop {
-                        attackmask.set_bit(dest_index);
-                        // Checking if a black piece is on the new position of the Bishop
-                        if all_pieces.get_bit(dest_index)
-                            || dest_index & 0b111 == 0
-                            || dest_index > 55
-                        {
-                            break;
-                        }
-                        dest_index += 7;
-                    }
+                    dest_index += 9;
                 }
             }
+        }
+
+        if (sq_index & 0b111) != 0 {
+            // moving to upper left
+            // Checking if piece is on 8th rank
+            if sq_index > 7 {
+                let mut dest_index = sq_index - 9;
+                loop {
+                    attackmask.set_bit(dest_index);
+                    // Checking if a black piece is on the new position of the Bishop
+                    if all_pieces.get_bit(dest_index) || dest_index & 0b111 == 0 || dest_index < 8 {
+                        break;
+                    }
+                    dest_index -= 9;
+                }
+            }
+
+            // moving to bottom left
+            if sq_index < 56 {
+                let mut dest_index = sq_index + 7;
+                loop {
+                    attackmask.set_bit(dest_index);
+                    // Checking if a black piece is on the new position of the Bishop
+                    if all_pieces.get_bit(dest_index) || dest_index & 0b111 == 0 || dest_index > 55
+                    {
+                        break;
+                    }
+                    dest_index += 7;
+                }
+            }
+        }
         attackmask
     }
 
@@ -261,45 +239,44 @@ impl ChessBoard {
         let mut attackmask = Bitboard::new(0);
         let all_pieces = self.get_all_pieces();
 
-
-            // Moving right
-            // Upper boundary of for loop is the index of h file of the rank of the rook
-            for dest_index in (sq_index + 1)..=(sq_index | 0b111) {
-                attackmask.set_bit(dest_index);
-                // Checking if a piece is on the new position of the Rook
-                if all_pieces.get_bit(dest_index) {
-                    break;
-                }
+        // Moving right
+        // Upper boundary of for loop is the index of h file of the rank of the rook
+        for dest_index in (sq_index + 1)..=(sq_index | 0b111) {
+            attackmask.set_bit(dest_index);
+            // Checking if a piece is on the new position of the Rook
+            if all_pieces.get_bit(dest_index) {
+                break;
             }
+        }
 
-            // Moving left
-            for dest_index in ((sq_index & 0xFFF8)..sq_index).rev() {
-                attackmask.set_bit(dest_index);
-                // Checking if a piece is on the new position of the Rook
-                if all_pieces.get_bit(dest_index) {
-                    break;
-                }
+        // Moving left
+        for dest_index in ((sq_index & 0xFFF8)..sq_index).rev() {
+            attackmask.set_bit(dest_index);
+            // Checking if a piece is on the new position of the Rook
+            if all_pieces.get_bit(dest_index) {
+                break;
             }
+        }
 
-            // Moving up
-            for i in (0..(sq_index >> 3)).rev() {
-                let dest_index = i * 8 + (sq_index & 0b111);
-                attackmask.set_bit(dest_index);
-                // Checking if a piece is on the new position of the Rook
-                if all_pieces.get_bit(dest_index) {
-                    break;
-                }
+        // Moving up
+        for i in (0..(sq_index >> 3)).rev() {
+            let dest_index = i * 8 + (sq_index & 0b111);
+            attackmask.set_bit(dest_index);
+            // Checking if a piece is on the new position of the Rook
+            if all_pieces.get_bit(dest_index) {
+                break;
             }
+        }
 
-            // Moving down
-            for i in (sq_index >> 3) + 1..8 {
-                let dest_index = i * 8 + (sq_index & 0b111);
-                attackmask.set_bit(dest_index);
-                // Checking if a piece is on the new position of the Rook
-                if all_pieces.get_bit(dest_index) {
-                    break;
-                }
+        // Moving down
+        for i in (sq_index >> 3) + 1..8 {
+            let dest_index = i * 8 + (sq_index & 0b111);
+            attackmask.set_bit(dest_index);
+            // Checking if a piece is on the new position of the Rook
+            if all_pieces.get_bit(dest_index) {
+                break;
             }
+        }
         attackmask
     }
 

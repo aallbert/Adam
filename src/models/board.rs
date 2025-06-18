@@ -90,7 +90,9 @@ impl ChessBoard {
                         'r' => Some(Piece::BlackRook),
                         'q' => Some(Piece::BlackQueen),
                         'k' => Some(Piece::BlackKing),
-                        _ => {continue;},
+                        _ => {
+                            continue;
+                        }
                     };
 
                     if let Some(piece) = piece_type {
@@ -106,7 +108,7 @@ impl ChessBoard {
         board.white_to_move = match parts[1] {
             "w" => true,
             "b" => false,
-            _ => true
+            _ => true,
         };
 
         // Castling availability
@@ -118,7 +120,7 @@ impl ChessBoard {
                 'k' => board.castling_rights |= castling::BLACK_K,
                 'q' => board.castling_rights |= castling::BLACK_Q,
                 '-' => {} // No castling rights
-                _ => {},
+                _ => {}
             }
         }
 
@@ -129,14 +131,26 @@ impl ChessBoard {
             let rank_char = parts[3].chars().nth(1).unwrap();
 
             let file = match file_char {
-                'a' => 0, 'b' => 1, 'c' => 2, 'd' => 3,
-                'e' => 4, 'f' => 5, 'g' => 6, 'h' => 7,
+                'a' => 0,
+                'b' => 1,
+                'c' => 2,
+                'd' => 3,
+                'e' => 4,
+                'f' => 5,
+                'g' => 6,
+                'h' => 7,
                 _ => 0,
             };
 
             let rank = match rank_char {
-                '1' => 7, '2' => 6, '3' => 5, '4' => 4,
-                '5' => 3, '6' => 2, '7' => 1, '8' => 0,
+                '1' => 7,
+                '2' => 6,
+                '3' => 5,
+                '4' => 4,
+                '5' => 3,
+                '6' => 2,
+                '7' => 1,
+                '8' => 0,
                 _ => 0,
             };
 
@@ -151,7 +165,10 @@ impl ChessBoard {
     }
 
     pub fn get_bitboard(&self, index: usize) -> Bitboard {
-        self.bitboards.get(index).copied().expect("Bitboard index out of bounds")
+        self.bitboards
+            .get(index)
+            .copied()
+            .expect("Bitboard index out of bounds")
     }
 
     pub fn set_bitboard(&mut self, index: usize, bb: Bitboard) {

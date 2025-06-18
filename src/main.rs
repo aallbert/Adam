@@ -14,7 +14,6 @@ fn main() {
     // Testing with perftree-cli
     let args: Vec<String> = env::args().collect();
     if args.len() > 1 {
-        // dbg!(&args);
         let depth_str = &args[1];
         let depth: i32 = depth_str.parse().unwrap();
 
@@ -61,16 +60,14 @@ fn main() {
                             None
                         };
                         curr_board = ChessBoard::from_fen(fen_string.unwrap());
-                        let moves_strings: Vec<&str> = l.split_whitespace()
+                        let moves_strings: Vec<&str> = l
+                            .split_whitespace()
                             .skip_while(|&part| part != "moves") // Skip until "moves" is found
                             .skip(1) // Skip "moves" itself
                             .collect();
-                        // dbg!(&moves_strings);
                         // Calculate board (stateless)
                         for mv in moves_strings {
                             curr_board.make_move(ChessMove::new_with_str(mv));
-                            // dbg!(mv);
-                            // dbg!(curr_board.get_white_to_move());
                         }
                     }
                     l if l.starts_with("go") => {
@@ -84,8 +81,8 @@ fn main() {
                         continue;
                     }
                     _ => {
-                        println!("Invalid input: {}\nExiting now", input.trim());
-                        break;
+                        println!("Invalid input: {}\nContinuing", input.trim());
+                        continue;
                     }
                 }
             }

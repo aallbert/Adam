@@ -11,8 +11,6 @@ impl ChessBoard {
         };
         for mv in self.all_possible_moves() {
             let curr_eval = self.with_move(mv).minimax(depth);
-            // dbg!(curr_eval);
-            // dbg!(mv.to_str());
             if self.get_white_to_move() {
                 if best_eval <= curr_eval {
                     best_eval = curr_eval;

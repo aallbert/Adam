@@ -1,7 +1,4 @@
-use crate::models::{
-        board::ChessBoard,
-        chessmove::ChessMove,
-    };
+use crate::models::{board::ChessBoard, chessmove::ChessMove};
 use rand::seq::IndexedRandom;
 use std::io;
 
@@ -26,11 +23,11 @@ pub fn parse_fen_pieces_to_board(fen: &str) -> Vec<Vec<char>> {
 
 pub fn testing() {
     let mut chess_board = ChessBoard::starting_position();
-    let mut depth= 0;
+    let mut depth = 0;
 
     loop {
         let fen_string = String::from(chess_board.to_fen());
-        let fen_pieces = match fen_string.find(' '){
+        let fen_pieces = match fen_string.find(' ') {
             Some(index) => fen_string[0..index].to_string(),
             None => fen_string[..].to_string(),
         };
@@ -97,18 +94,18 @@ pub fn testing() {
                 "fen" => {
                     println!("input fen");
                     let mut fen_string = String::new();
-                    io::stdin().read_line(&mut fen_string)
+                    io::stdin()
+                        .read_line(&mut fen_string)
                         .expect("Failed to read line");
                     chess_board = ChessBoard::from_fen(&fen_string)
                 }
                 "depth" => {
                     println!("input depth");
                     let mut depth_string = String::new();
-                    io::stdin().read_line(&mut depth_string)
+                    io::stdin()
+                        .read_line(&mut depth_string)
                         .expect("Failed to read line");
                     depth = depth_string.trim().parse::<u8>().unwrap_or(0);
-                    // dbg!(depth);
-                    // dbg!(depth_string);
                 }
                 _ => {
                     let mv = ChessMove::new_with_str(&input);

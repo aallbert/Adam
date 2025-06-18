@@ -1,4 +1,4 @@
-pub mod movemasks;
+pub mod bestmv;
 pub mod minimax;
 pub mod movegen;
-pub mod bestmv;
+pub mod movemasks;

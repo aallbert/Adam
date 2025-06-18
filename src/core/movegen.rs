@@ -22,7 +22,7 @@ impl ChessBoard {
                 if (w_king & new_board.calc_b_attackmask()).to_u64() == 0 {
                     res.push(mv);
                 }
-            };
+            }
             return res;
         } else {
             all_moves.extend(self.b_pawn_moves());
@@ -38,7 +38,7 @@ impl ChessBoard {
                 if (b_king & new_board.calc_w_attackmask()).to_u64() == 0 {
                     res.push(mv);
                 }
-            };
+            }
             return res;
         }
     }
@@ -68,8 +68,7 @@ impl ChessBoard {
                         0b1000_000000 | curr_sq,
                         dest_sq,
                     ));
-                }
-                else {
+                } else {
                     moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq))
                 }
             }
@@ -93,8 +92,7 @@ impl ChessBoard {
                             0b1000_000000 | curr_sq,
                             dest_sq,
                         ));
-                    }
-                    else {
+                    } else {
                         moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq))
                     }
                 }
@@ -111,7 +109,7 @@ impl ChessBoard {
         for curr_sq in b_pawns {
             for dest_sq in self.calc_b_pawn_movemask(curr_sq) {
                 if (dest_sq >> 3) == 7 {
-                // Pawn Promotion, see encoding in ChessMove docu
+                    // Pawn Promotion, see encoding in ChessMove docu
                     moves.push(ChessMove::new_with_curr_and_dest(
                         0b0001_000000 | curr_sq,
                         dest_sq,
@@ -128,15 +126,14 @@ impl ChessBoard {
                         0b1000_000000 | curr_sq,
                         dest_sq,
                     ));
-                }
-                else {
+                } else {
                     moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq))
                 }
             }
             for dest_sq in ChessBoard::calc_b_pawn_attackmask(curr_sq) {
-                if w_pieces.get_bit(dest_sq) || self.get_en_passant() == dest_sq  {
+                if w_pieces.get_bit(dest_sq) || self.get_en_passant() == dest_sq {
                     if (dest_sq >> 3) == 7 {
-                    // Pawn Promotion, see encoding in ChessMove docu
+                        // Pawn Promotion, see encoding in ChessMove docu
                         moves.push(ChessMove::new_with_curr_and_dest(
                             0b0001_000000 | curr_sq,
                             dest_sq,
@@ -153,8 +150,7 @@ impl ChessBoard {
                             0b1000_000000 | curr_sq,
                             dest_sq,
                         ));
-                    }
-                    else {
+                    } else {
                         moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq))
                     }
                 }
@@ -174,7 +170,7 @@ impl ChessBoard {
                     moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
                 }
             }
-        };
+        }
         moves
     }
 
@@ -189,7 +185,7 @@ impl ChessBoard {
                     moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
                 }
             }
-        };
+        }
         moves
     }
 
@@ -204,7 +200,7 @@ impl ChessBoard {
                     moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
                 }
             }
-        };
+        }
         moves
     }
 
@@ -219,7 +215,7 @@ impl ChessBoard {
                     moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
                 }
             }
-        };
+        }
         moves
     }
 
@@ -234,7 +230,7 @@ impl ChessBoard {
                     moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
                 }
             }
-        };
+        }
         moves
     }
 
@@ -249,7 +245,7 @@ impl ChessBoard {
                     moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
                 }
             }
-        };
+        }
         moves
     }
 
@@ -276,7 +272,7 @@ impl ChessBoard {
             {
                 moves.push(CastleMove::WHITE_Q)
             }
-        };
+        }
         moves
     }
 
@@ -303,7 +299,7 @@ impl ChessBoard {
             {
                 moves.push(CastleMove::BLACK_Q)
             }
-        };
+        }
         moves
     }
 
@@ -318,7 +314,7 @@ impl ChessBoard {
                     moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
                 }
             }
-        };
+        }
         moves
     }
 
@@ -333,7 +329,7 @@ impl ChessBoard {
                     moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
                 }
             }
-        };
+        }
         moves
     }
 
@@ -353,31 +349,31 @@ impl ChessBoard {
         match side {
             castling::WHITE_K => {
                 (self.get_bitboard(Piece::WhiteKing.into()) & b_attackmask).to_u64() != 0
-                || self.get_castling_rights() & castling::WHITE_K == 0
-                || mask_white.get_bit(61u16)
-                || mask_white.get_bit(62u16)
+                    || self.get_castling_rights() & castling::WHITE_K == 0
+                    || mask_white.get_bit(61u16)
+                    || mask_white.get_bit(62u16)
             }
             castling::WHITE_Q => {
                 (self.get_bitboard(Piece::WhiteKing.into()) & b_attackmask).to_u64() != 0
-                || self.get_castling_rights() & castling::WHITE_Q == 0
-                || mask_white.get_bit(59u16)
-                || mask_white.get_bit(58u16)
-                || mask_white.get_bit(57u16)
+                    || self.get_castling_rights() & castling::WHITE_Q == 0
+                    || mask_white.get_bit(59u16)
+                    || mask_white.get_bit(58u16)
+                    || mask_white.get_bit(57u16)
             }
             castling::BLACK_K => {
                 (self.get_bitboard(Piece::BlackKing.into()) & w_attackmask).to_u64() != 0
-                || self.get_castling_rights() & castling::BLACK_K == 0
-                || mask_black.get_bit(5u16)
-                || mask_black.get_bit(6u16)
+                    || self.get_castling_rights() & castling::BLACK_K == 0
+                    || mask_black.get_bit(5u16)
+                    || mask_black.get_bit(6u16)
             }
             castling::BLACK_Q => {
                 (self.get_bitboard(Piece::BlackKing.into()) & w_attackmask).to_u64() != 0
-                || self.get_castling_rights() & castling::BLACK_Q == 0
-                || mask_black.get_bit(3u16)
-                || mask_black.get_bit(2u16)
-                || mask_black.get_bit(1u16)
+                    || self.get_castling_rights() & castling::BLACK_Q == 0
+                    || mask_black.get_bit(3u16)
+                    || mask_black.get_bit(2u16)
+                    || mask_black.get_bit(1u16)
             }
-            _ => panic!("Wrong Castling configuration provided!")
+            _ => panic!("Wrong Castling configuration provided!"),
         }
     }
 }
