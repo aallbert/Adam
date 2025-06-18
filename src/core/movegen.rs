@@ -52,48 +52,48 @@ impl ChessBoard {
             for dest_sq in self.calc_w_pawn_movemask(curr_sq) {
                 // Pawn Promotion, see encoding in ChessMove docu
                 if (dest_sq >> 3) == 0 {
-                    moves.push(ChessMove::new_with_curr_and_dest(
+                    moves.push(ChessMove::from_curr_and_dest(
                         0b0001_000000 | curr_sq,
                         dest_sq,
                     ));
-                    moves.push(ChessMove::new_with_curr_and_dest(
+                    moves.push(ChessMove::from_curr_and_dest(
                         0b0010_000000 | curr_sq,
                         dest_sq,
                     ));
-                    moves.push(ChessMove::new_with_curr_and_dest(
+                    moves.push(ChessMove::from_curr_and_dest(
                         0b0100_000000 | curr_sq,
                         dest_sq,
                     ));
-                    moves.push(ChessMove::new_with_curr_and_dest(
+                    moves.push(ChessMove::from_curr_and_dest(
                         0b1000_000000 | curr_sq,
                         dest_sq,
                     ));
                 } else {
-                    moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq))
+                    moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq))
                 }
             }
             for dest_sq in ChessBoard::calc_w_pawn_attackmask(curr_sq) {
                 if b_pieces.get_bit(dest_sq) || self.get_en_passant() == dest_sq {
                     // Pawn Promotion, see encoding in ChessMove docu
                     if (dest_sq >> 3) == 0 {
-                        moves.push(ChessMove::new_with_curr_and_dest(
+                        moves.push(ChessMove::from_curr_and_dest(
                             0b0001_000000 | curr_sq,
                             dest_sq,
                         ));
-                        moves.push(ChessMove::new_with_curr_and_dest(
+                        moves.push(ChessMove::from_curr_and_dest(
                             0b0010_000000 | curr_sq,
                             dest_sq,
                         ));
-                        moves.push(ChessMove::new_with_curr_and_dest(
+                        moves.push(ChessMove::from_curr_and_dest(
                             0b0100_000000 | curr_sq,
                             dest_sq,
                         ));
-                        moves.push(ChessMove::new_with_curr_and_dest(
+                        moves.push(ChessMove::from_curr_and_dest(
                             0b1000_000000 | curr_sq,
                             dest_sq,
                         ));
                     } else {
-                        moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq))
+                        moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq))
                     }
                 }
             }
@@ -110,48 +110,48 @@ impl ChessBoard {
             for dest_sq in self.calc_b_pawn_movemask(curr_sq) {
                 if (dest_sq >> 3) == 7 {
                     // Pawn Promotion, see encoding in ChessMove docu
-                    moves.push(ChessMove::new_with_curr_and_dest(
+                    moves.push(ChessMove::from_curr_and_dest(
                         0b0001_000000 | curr_sq,
                         dest_sq,
                     ));
-                    moves.push(ChessMove::new_with_curr_and_dest(
+                    moves.push(ChessMove::from_curr_and_dest(
                         0b0010_000000 | curr_sq,
                         dest_sq,
                     ));
-                    moves.push(ChessMove::new_with_curr_and_dest(
+                    moves.push(ChessMove::from_curr_and_dest(
                         0b0100_000000 | curr_sq,
                         dest_sq,
                     ));
-                    moves.push(ChessMove::new_with_curr_and_dest(
+                    moves.push(ChessMove::from_curr_and_dest(
                         0b1000_000000 | curr_sq,
                         dest_sq,
                     ));
                 } else {
-                    moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq))
+                    moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq))
                 }
             }
             for dest_sq in ChessBoard::calc_b_pawn_attackmask(curr_sq) {
                 if w_pieces.get_bit(dest_sq) || self.get_en_passant() == dest_sq {
                     if (dest_sq >> 3) == 7 {
                         // Pawn Promotion, see encoding in ChessMove docu
-                        moves.push(ChessMove::new_with_curr_and_dest(
+                        moves.push(ChessMove::from_curr_and_dest(
                             0b0001_000000 | curr_sq,
                             dest_sq,
                         ));
-                        moves.push(ChessMove::new_with_curr_and_dest(
+                        moves.push(ChessMove::from_curr_and_dest(
                             0b0010_000000 | curr_sq,
                             dest_sq,
                         ));
-                        moves.push(ChessMove::new_with_curr_and_dest(
+                        moves.push(ChessMove::from_curr_and_dest(
                             0b0100_000000 | curr_sq,
                             dest_sq,
                         ));
-                        moves.push(ChessMove::new_with_curr_and_dest(
+                        moves.push(ChessMove::from_curr_and_dest(
                             0b1000_000000 | curr_sq,
                             dest_sq,
                         ));
                     } else {
-                        moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq))
+                        moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq))
                     }
                 }
             }
@@ -167,7 +167,7 @@ impl ChessBoard {
         for curr_sq in w_bishops {
             for dest_sq in self.calc_bishop_attackmask(curr_sq) {
                 if !w_pieces.get_bit(dest_sq) {
-                    moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
+                    moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq));
                 }
             }
         }
@@ -182,7 +182,7 @@ impl ChessBoard {
         for curr_sq in b_bishops {
             for dest_sq in self.calc_bishop_attackmask(curr_sq) {
                 if !b_pieces.get_bit(dest_sq) {
-                    moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
+                    moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq));
                 }
             }
         }
@@ -197,7 +197,7 @@ impl ChessBoard {
         for curr_sq in w_knights {
             for dest_sq in ChessBoard::calc_knight_attackmask(curr_sq) {
                 if !w_pieces.get_bit(dest_sq) {
-                    moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
+                    moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq));
                 }
             }
         }
@@ -212,7 +212,7 @@ impl ChessBoard {
         for curr_sq in b_knights {
             for dest_sq in ChessBoard::calc_knight_attackmask(curr_sq) {
                 if !b_pieces.get_bit(dest_sq) {
-                    moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
+                    moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq));
                 }
             }
         }
@@ -227,7 +227,7 @@ impl ChessBoard {
         for curr_sq in w_rooks {
             for dest_sq in self.calc_rook_attackmask(curr_sq) {
                 if !w_pieces.get_bit(dest_sq) {
-                    moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
+                    moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq));
                 }
             }
         }
@@ -242,7 +242,7 @@ impl ChessBoard {
         for curr_sq in b_rooks {
             for dest_sq in self.calc_rook_attackmask(curr_sq) {
                 if !b_pieces.get_bit(dest_sq) {
-                    moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
+                    moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq));
                 }
             }
         }
@@ -258,7 +258,7 @@ impl ChessBoard {
         for curr_sq in w_king {
             for dest_sq in ChessBoard::calc_king_attackmask(curr_sq) {
                 if !w_pieces.get_bit(dest_sq) && !b_attackmask.get_bit(dest_sq) {
-                    moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
+                    moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq));
                 }
             }
             //castling
@@ -285,7 +285,7 @@ impl ChessBoard {
         for curr_sq in b_king {
             for dest_sq in ChessBoard::calc_king_attackmask(curr_sq) {
                 if !b_pieces.get_bit(dest_sq) && !w_attackmask.get_bit(dest_sq) {
-                    moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
+                    moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq));
                 }
             }
             //castling
@@ -311,7 +311,7 @@ impl ChessBoard {
         for curr_sq in w_queens {
             for dest_sq in self.calc_queen_attackmask(curr_sq) {
                 if !w_pieces.get_bit(dest_sq) {
-                    moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
+                    moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq));
                 }
             }
         }
@@ -326,7 +326,7 @@ impl ChessBoard {
         for curr_sq in b_queens {
             for dest_sq in self.calc_queen_attackmask(curr_sq) {
                 if !b_pieces.get_bit(dest_sq) {
-                    moves.push(ChessMove::new_with_curr_and_dest(curr_sq, dest_sq));
+                    moves.push(ChessMove::from_curr_and_dest(curr_sq, dest_sq));
                 }
             }
         }

@@ -21,10 +21,10 @@ impl ChessMove {
     pub fn new(u: u16) -> Self {
         Self(u)
     }
-    pub fn new_with_curr_and_dest(u_curr: u16, u_dest: u16) -> Self {
+    pub fn from_curr_and_dest(u_curr: u16, u_dest: u16) -> Self {
         Self((u_curr << 6) + u_dest)
     }
-    pub fn new_with_square(curr: SquareChar, dest: SquareChar) -> Self {
+    pub fn from_square(curr: SquareChar, dest: SquareChar) -> Self {
         let u_from: u16 =
             (-(rank_to_i8(curr.rank) - 8) as u16 * 8 + file_to_i8(curr.file) as u16 - 1) << 6;
         let u_to: u16 = -(rank_to_i8(dest.rank) - 8) as u16 * 8 + file_to_i8(dest.file) as u16 - 1;
@@ -44,7 +44,7 @@ impl ChessMove {
         // encoding promotions
         if mv.len() == 5 {
             let encoding_str = chars.next().unwrap();
-            let mv_int = ChessMove::new_with_square(curr_sq, dest_sq).0;
+            let mv_int = ChessMove::from_square(curr_sq, dest_sq).0;
             match encoding_str {
                 'n' => {
                     return ChessMove::new(0b0001_000000_000000 | mv_int);
@@ -61,7 +61,7 @@ impl ChessMove {
                 _ => {}
             }
         }
-        ChessMove::new_with_square(curr_sq, dest_sq)
+        ChessMove::from_square(curr_sq, dest_sq)
     }
     pub fn get_curr_square_as_index(&self) -> u16 {
         (self.0 & 0b0000_111111_000000) >> 6
