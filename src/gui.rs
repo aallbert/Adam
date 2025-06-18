@@ -26,6 +26,7 @@ pub fn parse_fen_pieces_to_board(fen: &str) -> Vec<Vec<char>> {
 
 pub fn testing() {
     let mut chess_board = ChessBoard::starting_position();
+    let mut depth= 0;
 
     loop {
         let fen_string = String::from(chess_board.to_fen());
@@ -46,7 +47,7 @@ pub fn testing() {
         println!("    a  b  c  d  e  f  g  h");
 
         let mut input = String::from("");
-        let all_moves = chess_board.possible_moves();
+        let all_moves = chess_board.all_possible_moves();
 
         match io::stdin().read_line(&mut input) {
             Ok(_) => match input.trim() {
@@ -68,7 +69,7 @@ pub fn testing() {
                     for i in 1..=DEPTH {
                         let mut new_boards: Vec<ChessBoard> = vec![];
                         for board in possible_boards {
-                            let all_moves = board.possible_moves();
+                            let all_moves = board.all_possible_moves();
                             for &mv in &all_moves {
                                 let board_with_mv = board.with_move(mv);
                                 let eval = board_with_mv.evaluate_position();
@@ -90,7 +91,7 @@ pub fn testing() {
                     }
                 }
                 "best" => {
-                    let best_mv = chess_board.best_mv(3);
+                    let best_mv = chess_board.best_mv(depth);
                     println!("best move: {}", best_mv.to_str());
                 }
                 "fen" => {
@@ -99,6 +100,15 @@ pub fn testing() {
                     io::stdin().read_line(&mut fen_string)
                         .expect("Failed to read line");
                     chess_board = ChessBoard::from_fen(&fen_string)
+                }
+                "depth" => {
+                    println!("input depth");
+                    let mut depth_string = String::new();
+                    io::stdin().read_line(&mut depth_string)
+                        .expect("Failed to read line");
+                    depth = depth_string.trim().parse::<u8>().unwrap_or(0);
+                    // dbg!(depth);
+                    // dbg!(depth_string);
                 }
                 _ => {
                     let mv = ChessMove::new_with_str(&input);

@@ -8,17 +8,14 @@ impl ChessBoard {
         };
         if self.get_white_to_move() {
             let mut max_eval = i32::MIN;
-            // todo: consider changing
-            // maybe more efficient way??
-            for mv in self.possible_moves() {
+            for mv in self.all_possible_moves() {
                 let eval = self.with_move(mv).minimax(depth - 1);
                 max_eval = cmp::max(max_eval, eval);
             }
             return max_eval;
         } else {
             let mut min_eval = i32::MAX;
-            // todo: consider changing
-            for mv in self.possible_moves() {
+            for mv in self.all_possible_moves() {
                 let eval = self.with_move(mv).minimax(depth - 1);
                 min_eval = cmp::min(min_eval, eval);
             }

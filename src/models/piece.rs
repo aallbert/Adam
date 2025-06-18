@@ -33,9 +33,9 @@ impl Piece {
     }
 }
 
-impl From<Piece> for u8 {
-    fn from(p: Piece) -> u8 {
-        p as u8
+impl Into<usize> for Piece {
+    fn into(self) -> usize {
+        self as usize
     }
 }
 

@@ -98,6 +98,10 @@ impl ChessMove {
 
         string
     }
+
+    pub fn to_u16(&self) -> u16 {
+        self.0
+    }
 }
 
 impl std::ops::BitAnd for ChessMove {

@@ -37,19 +37,19 @@ impl ChessBoard {
 
         // White pieces
         board.bitboards[Piece::WhitePawn as usize] = Bitboard::new(0x0000_0000_0000_ff00);
-        board.bitboards[Piece::WhiteRook as usize] = Bitboard::new(0x0000_0000_0000_0081);
-        board.bitboards[Piece::WhiteKnight as usize] = Bitboard::new(0x0000_0000_0000_0042);
         board.bitboards[Piece::WhiteBishop as usize] = Bitboard::new(0x0000_0000_0000_0024);
-        board.bitboards[Piece::WhiteQueen as usize] = Bitboard::new(0x0000_0000_0000_0010);
+        board.bitboards[Piece::WhiteKnight as usize] = Bitboard::new(0x0000_0000_0000_0042);
+        board.bitboards[Piece::WhiteRook as usize] = Bitboard::new(0x0000_0000_0000_0081);
         board.bitboards[Piece::WhiteKing as usize] = Bitboard::new(0x0000_0000_0000_0008);
+        board.bitboards[Piece::WhiteQueen as usize] = Bitboard::new(0x0000_0000_0000_0010);
 
         // Black pieces
         board.bitboards[Piece::BlackPawn as usize] = Bitboard::new(0x00ff_0000_0000_0000);
-        board.bitboards[Piece::BlackRook as usize] = Bitboard::new(0x8100_0000_0000_0000);
-        board.bitboards[Piece::BlackKnight as usize] = Bitboard::new(0x4200_0000_0000_0000);
         board.bitboards[Piece::BlackBishop as usize] = Bitboard::new(0x2400_0000_0000_0000);
-        board.bitboards[Piece::BlackQueen as usize] = Bitboard::new(0x1000_0000_0000_0000);
+        board.bitboards[Piece::BlackKnight as usize] = Bitboard::new(0x4200_0000_0000_0000);
+        board.bitboards[Piece::BlackRook as usize] = Bitboard::new(0x8100_0000_0000_0000);
         board.bitboards[Piece::BlackKing as usize] = Bitboard::new(0x0800_0000_0000_0000);
+        board.bitboards[Piece::BlackQueen as usize] = Bitboard::new(0x1000_0000_0000_0000);
 
         board.white_to_move = true;
         board.castling_rights = castling::ALL;
@@ -146,12 +146,12 @@ impl ChessBoard {
         board
     }
 
-    pub fn get_bitboards(&self) -> &[Bitboard; 12] {
-        &self.bitboards
+    pub fn get_bitboards(&self) -> [Bitboard; 12] {
+        self.bitboards
     }
 
-    pub fn get_bitboard(&self, index: usize) -> Option<Bitboard> {
-        self.bitboards.get(index).copied()
+    pub fn get_bitboard(&self, index: usize) -> Bitboard {
+        self.bitboards.get(index).copied().expect("Bitboard index out of bounds")
     }
 
     pub fn set_bitboard(&mut self, index: usize, bb: Bitboard) {
@@ -167,6 +167,20 @@ impl ChessBoard {
     pub fn get_all_pieces(&self) -> Bitboard {
         let all = self.bitboards.iter().fold(0u64, |acc, bb| acc | bb.0);
         Bitboard(all)
+    }
+
+    pub fn get_w_pieces(&self) -> Bitboard {
+        let w_pieces_u64 = self.get_bitboards()[0..6]
+            .iter()
+            .fold(0u64, |acc, b| acc | b.to_u64());
+        Bitboard(w_pieces_u64)
+    }
+
+    pub fn get_b_pieces(&self) -> Bitboard {
+        let b_pieces_u64 = self.get_bitboards()[6..12]
+            .iter()
+            .fold(0u64, |acc, b| acc | b.to_u64());
+        Bitboard(b_pieces_u64)
     }
 
     pub fn get_white_to_move(&self) -> bool {

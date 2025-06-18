@@ -14,7 +14,7 @@ fn main() {
     // Testing with perftree-cli
     let args: Vec<String> = env::args().collect();
     if args.len() > 1 {
-        dbg!(&args);
+        // dbg!(&args);
         let depth_str = &args[1];
         let depth: i32 = depth_str.parse().unwrap();
 
@@ -65,16 +65,17 @@ fn main() {
                             .skip_while(|&part| part != "moves") // Skip until "moves" is found
                             .skip(1) // Skip "moves" itself
                             .collect();
-                        dbg!(&moves_strings);
+                        // dbg!(&moves_strings);
                         // Calculate board (stateless)
                         for mv in moves_strings {
                             curr_board.make_move(ChessMove::new_with_str(mv));
-                            dbg!(mv);
-                            dbg!(curr_board.get_white_to_move());
+                            // dbg!(mv);
+                            // dbg!(curr_board.get_white_to_move());
                         }
                     }
                     l if l.starts_with("go") => {
                         // Calculating all positions to a certain depth
+                        // !!! depth is hardcoded, but can be calculated depending on the time left for the engine
                         let best_mv = curr_board.best_mv(4);
                         println!("info pv {}", best_mv.to_str());
                         println!("bestmove {}", best_mv.to_str());
